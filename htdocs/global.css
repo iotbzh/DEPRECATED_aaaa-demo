@@ -1,0 +1,194 @@
+body.page-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    width: auto;
+    text-align: center;
+    background: url("assets/content-background-car-wide.png") 0 0 no-repeat;
+    background-color: #303a40;
+    background-size: cover;
+    background-position: center;
+    color: #FFFFFF;
+}
+
+#logo-iot {
+    align-self: left;
+    height: 60px;
+}
+
+#title {
+    margin: 0;
+}
+
+.dashboard {
+    height: 95%;
+    width: 80%;
+    text-align: center;
+    margin: auto;
+}
+
+.btn-bar,
+.info-bar {
+    display: flex;
+    margin: auto;
+    text-align: center;
+    height: 10%;
+}
+
+.btn-barbar {
+    display: flex;
+    margin: auto;
+}
+
+#info-text {
+    color: greenyellow;
+    margin: auto;
+}
+
+button.btn-icon {
+    background-color: transparent;
+    border: 0;
+    margin: 1em;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    display: block;
+    width: 60px;
+    height: 60px;
+}
+
+button.btn-conn {
+    align-self: flex-end;
+    opacity: 0.7;
+}
+
+#phone-call {
+    background-image: url("assets/phone-call.png");
+}
+
+#navigation {
+    background-image: url("assets/messages.png");
+}
+
+#music {
+    background-image: url("assets/music-play.png");
+}
+
+#emergency {
+    background-image: url("assets/emergency.png");
+}
+
+input.speed,
+input.sound,
+select.music,
+button.btn-incdec {
+    width: 6em;
+    text-align: center;
+    font-size: x-large;
+}
+
+button.btn-incdec {
+    width: 2em;
+}
+
+select.music {
+    width: 50%;
+}
+
+#logger, #logger-event {
+    text-align: left;
+    opacity: 0.9;
+    overflow: auto;
+    outline: 1px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+    white-space: pre-wrap;
+    min-height: 20pc;
+    max-height: 50%;
+}
+
+table.panel-table {
+    border: 0;
+    margin: auto;
+    width: 100%;
+}
+
+table.panel-table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+td.panel-speed td.panel-sound {
+    width: 25%;
+}
+
+td.panel-music {
+    width: 50%;
+}
+
+.action-command {
+    color: yellow;
+    text-decoration: underline;
+}
+
+.action-reply {
+    color: greenyellow;
+    text-decoration: underline;
+}
+
+.action-error {
+    color: red;
+    text-decoration: underline;
+}
+
+.string {
+    color: green;
+}
+
+.number {
+    color: darkorange;
+}
+
+.boolean {
+    color: blue;
+}
+
+.null {
+    color: magenta;
+}
+
+.key {
+    color: red;
+}
+
+#phone-call.btn-icon.shake {
+    animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+    transform: translate3d(0, 0, 0);
+}
+#navigation.btn-icon.shake {
+    animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+    transform: translate3d(0, 0, 0);
+}
+
+@keyframes shake {
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}

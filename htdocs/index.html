@@ -1,0 +1,83 @@
+<html>
+
+<head>
+    <title>AGL-AudioBindins tests</title>
+
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="stylesheet" href="global.css">
+
+    <script type="text/javascript" src="AFB-websock.js"></script>
+    <script type="text/javascript" src="AudioDemo.js"></script>
+</head>
+
+<body class="page-content" onload="init('control','dispatch', {'target':'subscribe'})">
+
+    <table style="width: 100%">
+        <tr>
+            <td> <img id="logo-iot" src="assets/iot-bzh-logo-small.png"></td>
+            <td style="width:70%; text-align:center;">
+                <h1 id="title">Audio-bindings Demo</h1>
+            </td>
+            <td> <button class="btn-conn" id="connected" onclick="init('control','dispatch', {'target':'subscribe'});">Binder Connection Fail</button></td>
+        </tr>
+    </table>
+
+    <div class="dashboard">
+        <div class="btn-bar">
+            <div class="btn-barbar">
+                <button class="btn-icon" id="phone-call" onclick="callbinder('control','dispatch' ,{'target':'phone','args':{'apihal':sndcard}});">
+            </button>
+
+                <button class="btn-icon" id="navigation" onclick="callbinder('control','dispatch' ,{'target':'navigation','args':{'apihal':sndcard}});">
+            </button>
+
+                <button class="btn-icon" id="music" onclick="callbinder('control','dispatch' ,{'target':'multimedia', args:{'action':'play',toggle:true}});">
+            </button>
+
+                <button class="btn-icon" id="emergency" onclick="callbinder('control','dispatch' ,{'target':'emergency','args':{'apihal':sndcard}});">
+            </button>
+            </div>
+        </div>
+
+        <div class="info-bar">
+            <h2 id="info-text"></h2>
+        </div>
+
+        <table class="panel-table">
+            <tr>
+                <td class="panel-speed">
+                    <h2>Speed</h2>
+                    <button class="btn-incdec" onclick="speedDec()">-</button>
+                    <input class="speed" id="speed" maxlength="9" value="90 km/h" </input>
+                    <button class="btn-incdec" onclick="speedInc()">+</button>
+                </td>
+                <td class="panel-sound">
+                    <h2>Volume</h2>
+                    <button class="btn-incdec" onclick="volumeDec()">-</button>
+                    <input class="sound" id="volume" maxlength="3" value="20" </input>
+                    <button class="btn-incdec" onclick="volumeInc()">+</button>
+                </td>
+                <td class="panel-music">
+                    <h2>Music player</h2>
+                    <select class="music" id="musicSelect"></select>
+                </td>
+            </tr>
+        </table>
+
+        <div class="panel-logger">
+            <h2>Logger</h2>
+            <pre id="logger">
+            <!--
+            <table class="panel-table">
+                <tr>
+                    <td><pre id="logger-cmd"></pre></td>
+                    <td><pre id="logger-event"></pre></td>
+                </tr>
+            </table>
+        -->
+        </div>
+    </div>
+
+</body>
+
+</html>
