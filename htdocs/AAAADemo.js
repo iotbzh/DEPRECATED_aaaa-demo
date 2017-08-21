@@ -27,8 +27,6 @@ function gotevent(obj) {
 // Logger
 /************************/
 var log = {
-    logger: document.getElementById("logger"),
-
     command: function (api, verb, query) {
         var q = urlws + "/" + api + "/" + verb + "?query=" + JSON.stringify(query);
         console.log("subscribe api=" + api + " verb=" + verb + " query=" + query);
@@ -51,6 +49,8 @@ var log = {
     },
 
     write: function (action, msg) {
+        var logger = document.getElementById("logger-cmd");
+
         aclass = 'action-' + action.toLowerCase();
         logger.innerHTML += '<span class="' + aclass + ' ">' + action + ':</span> ';
         logger.innerHTML += msg;

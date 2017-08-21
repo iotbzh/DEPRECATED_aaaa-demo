@@ -98,7 +98,7 @@ select.music {
     width: 50%;
 }
 
-#logger, #logger-event {
+#logger-cmd, #logger-event {
     text-align: left;
     opacity: 0.9;
     overflow: auto;
@@ -107,10 +107,10 @@ select.music {
     margin: 5px;
     white-space: pre-wrap;
     min-height: 20pc;
-    max-height: 50%;
+    height: 100%;
 }
 
-table.panel-table {
+table.panel-table, table.table-logger {
     border: 0;
     margin: auto;
     width: 100%;
@@ -127,6 +127,28 @@ td.panel-speed td.panel-sound {
 
 td.panel-music {
     width: 50%;
+}
+
+div.panel-logger {
+    height: 70%;
+}
+
+table.table-logger {
+    height: inherit;
+}
+
+table.table-logger td {
+    width: 50%;
+}
+
+table.table-logger th {
+    height: 1em;
+    font-size: small;
+    font-family: monospace;
+}
+
+table.table-logger tr {
+    font-family: monospace;
 }
 
 .action-command {

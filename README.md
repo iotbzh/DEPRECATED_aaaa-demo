@@ -44,8 +44,10 @@ alphabetic order.
 
 ## Start
 ```
+mkdir -p /var/tmp/mpd/{navigation,multimedia,emergency}
 mpd -v --no-daemon ./conf.d/project/mpd.d/navigation-mpd.conf &
 mpd -v --no-daemon ./conf.d/project/mpd.d/multimedia-mpd.conf &
+mpd -v --no-daemon ./conf.d/project/mpd.d/emergency-mpd.conf &
 
 ./start-demo-daemon.sh
 ```
