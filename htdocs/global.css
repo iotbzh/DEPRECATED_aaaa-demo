@@ -95,7 +95,7 @@ button.btn-incdec {
 }
 
 select.music {
-    width: 50%;
+    width: 70%;
 }
 
 #logger-cmd, #logger-event {
@@ -167,7 +167,7 @@ table.table-logger tr {
 }
 
 .string {
-    color: green;
+    color: lightskyblue;
 }
 
 .number {
