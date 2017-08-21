@@ -22,7 +22,7 @@
 
  Edit your demo json config file
 ```
-conf.d/project/json.d/onload-audiodemo-config.json
+conf.d/project/json.d/onload-AAAAdemo-config.json
 ```
 Except if you change port, or if MPD is not running on localhost default config
 should be fine.
@@ -37,7 +37,15 @@ should be fine.
 
 ## Play with the configuration
 
-The main configuration is the controller JSON file onload-audiodemo-config.json.
+The main configuration is the controller JSON file onload-AAAAdemo-config.json.
 Then all action and business logic are coded in LUA script available under
 `conf.d/project/lua.d`. On start the controller read and compile file under
 alphabetic order.
+
+## Start
+```
+mpd -v --no-daemon ./conf.d/project/mpd.d/navigation-mpd.conf &
+mpd -v --no-daemon ./conf.d/project/mpd.d/multimedia-mpd.conf &
+
+./start-demo-daemon.sh
+```

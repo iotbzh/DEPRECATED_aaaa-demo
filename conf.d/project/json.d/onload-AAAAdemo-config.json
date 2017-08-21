@@ -1,7 +1,7 @@
 {
     "$schema": "ToBeDone",
     "metadata": {
-        "label": "config-audiodemo-control",
+        "label": "config-AAAAdemo-control",
         "info": "Minimal Business Logic for HTML5 Demo",
         "version": "1.0"
     },
@@ -11,9 +11,9 @@
             "require": ["mpdc"],
             "actions":
                     {
-                        "label": "init-audiodemo-logic",
+                        "label": "init-AAAAdemo-logic",
                         "info" : "WARNING: 3 MPDaemon should wait on corresponding port",
-                        "lua": "_Init_Audiodemo_App",
+                        "lua": "_Init_AAAAdemo_App",
                         "args": {
                             "mpdc_hostname":"localhost",
                             "mpdc_multimedia":6601,

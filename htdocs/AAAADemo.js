@@ -303,7 +303,9 @@ function init(elemid, api, verb, query) {
         setTimeout(function() { btnShake("phone-call");}, 2000);
 
         // check for active HALs
-        querySelectList(elemid, api, verb, query);
+        //querySelectList(elemid, api, verb, query);
+        // Init playlist
+        queryPlaylist(elemid, api, verb, query);
 
         // update music selection list
         musicList.forEach(function (el) {

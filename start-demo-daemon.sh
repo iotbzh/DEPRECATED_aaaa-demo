@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------
-#  Start a Stand Alone Controler to Server AudioDemo HTML5
+#  Start a Stand Alone Controler to Server AAAADemo HTML5
 #
 #  Requirement:
 #    mpdc started with --ws-server:/var/tmp/afb-ws/mpdc
@@ -26,7 +26,7 @@ DEMOPATH=$PWD/`dirname $0`
 # Audio-Demo local path
   export CONTROL_CONFIG_PATH=$DEMOPATH/conf.d/project/json.d
   export CONTROL_LUA_PATH=$DEMOPATH/conf.d/project/lua.d
-  export AFB_BINDER_NAME=audiodemo
+  export AFB_BINDER_NAME=AAAAdemo
 
 
 # Fulup OpenSuse Home Config
@@ -38,6 +38,15 @@ DEMOPATH=$PWD/`dirname $0`
 
     CTL_HOMEDEV=$HOME/Workspace/AGL-AppFW/audio-bindings-dev
     MPDC_HOMEDEV=$HOME/Workspace/AGL-AppFW/mpdc-binding
+  fi
+  if [ $HOSTNAME = seb-laptop ]; then
+    RUN_FROM_DEV_TREE=true
+    RUN_IN_GROUP=true
+
+    AFB_DEBUG_OPTION="--tracereq=common --token= --verbose"
+
+    CTL_HOMEDEV=$HOME/Work/git/audio-bindings
+    MPDC_HOMEDEV=$HOME/Work/git/mpdc-binding
   fi
 
 # Default installation path
@@ -58,11 +67,6 @@ else
 fi
 
 
-if test ! -d $WS_BINDIND_PATH; then 
-    echo "  -- ERROR: AFB Websocket should exist. Request:$WS_BINDIND_PATH"
-    exit
-fi
-
 # check luac presence
 LUA_VERSION=`$LUAC -v`
 if test $? -ne 0; then
@@ -74,7 +78,7 @@ echo -------
 
 # Compile lua script before starting the demo
 for FILE in  $CONTROL_LUA_PATH/*.lua; do
-    $LUAC $FILE
+    $LUAC $FILE -o /dev/null
     if test $? -ne 0; then
         echo " ERROR: Must fixe LUA error before starting your binder"
         echo -------
@@ -86,7 +90,13 @@ done
 if [ $RUN_IN_GROUP = true ]; then
     AFB_DAEMON_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING --binding=$MPDC_BINDING \
     --workdir=$DEMOPATH --roothttp=./htdocs  $AFB_DEBUG_OPTION"
-else 
+else
+
+    if test ! -d $WS_BINDIND_PATH; then
+        echo "  -- ERROR: AFB Websocket should exist. Request:$WS_BINDIND_PATH"
+        exit
+    fi
+
     AFB_DAEMON_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING \
     --workdir=$DEMOPATH --roothttp=./htdocs --ws-client=$MPDC_SOCK $AFB_DEBUG_OPTION"
 fi

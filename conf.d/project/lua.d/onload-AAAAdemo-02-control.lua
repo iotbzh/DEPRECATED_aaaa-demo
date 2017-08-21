@@ -1,20 +1,20 @@
 --[[
   Copyright (C) 2016 "IoT.bzh"
   Author Fulup Ar Foll <fulup@iot.bzh>
- 
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
- 
+
     http://www.apache.org/licenses/LICENSE-2.0
- 
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  
-  Control are defined in onload-audiodemo-config.json
+
+  Control are defined in onload-AAAAdemo-config.json
 
   NOTE: strict mode: every global variables should be prefixed by '_'
 --]]
@@ -22,6 +22,8 @@
 function  _Subscribe_Client_To_Events(source, args, query)
     printf ("--InLua-- _Subscribe_Client_To_Event arg=%s query=%s", Dump_Table(args), Dump_Table(query))
 
+    -- subscribe to events
+    AFB:subscribe (request, _EventHandle)
 end
 
 function _Mpdc_To_Multimedia (source, args, query)
@@ -44,7 +46,7 @@ function _Mpdc_To_Multimedia (source, args, query)
       return 1 -- control refused
     end
 
-    -- So far request looks good let's send it to MPDC 
+    -- So far request looks good let's send it to MPDC
     local verb= query["action"]  -- use action as API verb
     query["action"]=nil  -- remove action and use remain query part as it
     query["session"]=_MPDC_CTX["multimedia"] -- retreive multimedia MPDC session
@@ -56,7 +58,7 @@ function _Mpdc_To_Multimedia (source, args, query)
     -- Api returning Data may use lua_docall. In the feature a special tag may indicate that a control
     -- is allowed to return data.
 
-    if (err) then 
+    if (err) then
         AFB:error("--LUA:_Mpdc_To_Multimedia refuse response=%s", response)
         return 1 -- control refused
     end
