@@ -204,9 +204,16 @@ function volumeUpdateInput(val) {
 
 
 
-// Retrieve Select value and Text from the binder
-// Note: selection of value/text for a given context is huggly!!!
-function querySelectList(elemid, api, verb, query) {
+// Retrieve music playlist
+function queryPlaylist(elemid, api, verb, query) {
+    // TODO: Get playlist from lua script
+    musicList.forEach(function (el) {
+        var option = document.createElement("option");
+        option.text = el;
+        musicSelect.add(option);
+    });
+
+/*
 
     console.log("querySelectList elemid=%s api=%s verb=%s query=%s", elemid, api, verb, query);
 
@@ -250,6 +257,7 @@ function querySelectList(elemid, api, verb, query) {
 
     // request lowlevel ALSA to get API list
     ws.call(api + "/" + verb, query).then(gotit, replyerr);
+*/
 }
 
 function refresh_list(self, api, verb, query) {
@@ -302,17 +310,8 @@ function init(elemid, api, verb, query) {
     function onopen() {
         setTimeout(function() { btnShake("phone-call");}, 2000);
 
-        // check for active HALs
-        //querySelectList(elemid, api, verb, query);
-        // Init playlist
+        // Init playlist of musics
         queryPlaylist(elemid, api, verb, query);
-
-        // update music selection list
-        musicList.forEach(function (el) {
-            var option = document.createElement("option");
-            option.text = el;
-            musicSelect.add(option);
-        });
 
         btnConn.innerHTML = "Binder Connection Active";
         btnConn.style.background = "lightgreen";

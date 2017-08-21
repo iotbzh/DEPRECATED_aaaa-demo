@@ -27,9 +27,6 @@
 -- Declare a global Context table to keep track of different MPDC connections
 _MPDC_CTX={}
 
--- Create event on Lua script load
-_EventHandle=AFB:evtmake("AAAADemoEvent")
-
 function _Mpdc_Async_CB (error, result, context)
     if (error) then
       AFB_ERROR ("--InLua-- _Mpdc_Async_CB result=%s context=%s", Dump_Table(result), Dump_Table(context))
