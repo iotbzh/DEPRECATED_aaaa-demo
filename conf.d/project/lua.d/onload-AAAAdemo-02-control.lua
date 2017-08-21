@@ -55,7 +55,7 @@ function _Mpdc_To_Multimedia (source, args, query)
     err, response= AFB:servsync ("mpdc", verb, query)
 
     -- Note: in current version controls only return a status. Also we may safely ignore API response
-    -- Api returning Data may use lua_docall. In the feature a special tag may indicate that a control
+    -- Api returning Data may use request. In the feature a special tag may indicate that a control
     -- is allowed to return data.
 
     if (err) then

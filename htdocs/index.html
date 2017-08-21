@@ -10,7 +10,7 @@
     <script type="text/javascript" src="AAAADemo.js"></script>
 </head>
 
-<body class="page-content" onload="init('control','dispatch', {'target':'subscribe'})">
+<body class="page-content" onload="init('control','request', {'target':'subscribe'})">
 
     <table style="width: 100%">
         <tr>
@@ -18,7 +18,7 @@
             <td style="width:70%; text-align:center;">
                 <h1 id="title">Audio-bindings Demo</h1>
             </td>
-            <td> <button class="btn-conn" id="connected" onclick="init('control','dispatch', {'target':'subscribe'});">Binder Connection Fail</button></td>
+            <td> <button class="btn-conn" id="connected" onclick="init('control', 'dispatch', {'target':'subscribe'});">Binder Connection Fail</button></td>
         </tr>
     </table>
 
@@ -33,8 +33,7 @@
 
                 <button class="btn-icon" id="music" onclick="callbinder('control','dispatch' ,{'target':'multimedia', args:{'action':'play',toggle:true}});">
             </button>
-
-                <button class="btn-icon" id="emergency" onclick="callbinder('control','dispatch' ,{'target':'emergency','args':{'apihal':sndcard}});">
+                <button class="btn-icon" id="emergency" onclick="callbinder('control','request', {'target': '_Simple_Echo_Args', 'args':{'apihal':sndcard}});">
             </button>
             </div>
         </div>

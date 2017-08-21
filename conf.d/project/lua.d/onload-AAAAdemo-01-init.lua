@@ -91,3 +91,15 @@ function _Init_AAAAdemo_App (source, args)
 
     return 0 -- happy end
 end
+
+-- Retreive the playlist
+function _Get_playlist (request, args)
+    AFB:notice("LUA _Get_playlist")
+
+    local handle = io.popen("MPD_PORT=6601 mpc ls")
+    local result = handle:read("*a")
+    handle:close()
+
+    -- fulup Embdeded table ToeDone AFB:success (request, response)
+    AFB:success (request,  {["target"]="Get_playlist", ["result"]=result})
+end

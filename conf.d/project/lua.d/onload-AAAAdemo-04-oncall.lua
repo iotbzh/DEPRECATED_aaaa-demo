@@ -15,7 +15,7 @@
   limitations under the License.
 
 
-  Provide sample LUA routines to be used with AGL control "lua_docall" API
+  Provide sample LUA routines to be used with AGL control "request" API
 --]]
 
 --global counter to keep track of calls
@@ -34,7 +34,7 @@ function _Simple_Echo_Args (request, args)
     }
 
     -- fulup Embdeded table ToeDone AFB:success (request, response)
-    AFB:success (request,  {["func"]="Simple_Echo_Args", ["ret1"]=5678, ["ret2"]="abcd"})
+    AFB:success (request,  {["target"]="Simple_Echo_Args", ["ret1"]=5678, ["ret2"]="abcd"})
 end
 
 local function Test_Async_CB (request, result, context)
