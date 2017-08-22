@@ -109,12 +109,18 @@ function callbinder(api, verb, query, cbOK, cbErr) {
     ws.call(api + "/" + verb, query).then(replyok, replyerr);
 }
 
-function callRequest(target, args) {
-    return callbinder('control', 'request', {target: target, args: args});
+function callRequest(target, args, cbOK, cbErr) {
+    return callbinder('control', 'request', {
+        target: target,
+        args: args
+    }, cbOK, cbErr);
 }
 
-function callDispatch() {
-    return callbinder('control', 'dispatch', {target: target, args: args});
+function callDispatch(target, args, cbOK, cbErr) {
+    return callbinder('control', 'dispatch', {
+        target: target,
+        args: args
+    }, cbOK, cbErr);
 }
 
 //***********************
@@ -133,19 +139,15 @@ function IconMusicToogle() {
 }
 
 function btnMusicStartStop() {
+    var musicSelect = document.getElementById("musicSelect");
+    var selElem = JSON.parse(musicSelect.value);
     var query = {
-        target: 'multimedia',
-        args: {
-            action: '',
-            toggle: true
-        }
+        action: 'control',
+        toogle: selElem.index
     };
-    query.args.action = (btnMusicState) ? 'play' : 'stop';
-    callbinder('control', 'dispatch', query,
-        function (res) {
-            IconMusicToogle();
-        }
-    );
+    callDispatch('multimedia', query, function (res) {
+        IconMusicToogle();
+    });
 }
 
 //*******
@@ -239,6 +241,7 @@ function updatePlaylist(list) {
     var el;
     for (el in list) {
         var option = document.createElement("option");
+        option.value = JSON.stringify(list[el]);
         option.text = "";
         if (list[el].artist && list[el].artist.length > 0) {
             option.text += list[el].artist[0];
@@ -260,7 +263,10 @@ function updateZones(output) {
     var option = document.createElement("option");
     option.text = "all";
     option.selected = "selected";
-    option.value = JSON.stringify({"all": true, "enable": true})
+    option.value = JSON.stringify({
+        "all": true,
+        "enable": true
+    })
     zoneSelect.add(option);
 
     for (el in output) {
@@ -269,7 +275,10 @@ function updateZones(output) {
         }
         var option = document.createElement("option");
         option.text = output[el].name;
-        option.value = JSON.stringify({"name": output[el].name, "enable": true})
+        option.value = JSON.stringify({
+            "name": output[el].name,
+            "enable": true
+        })
         zoneSelect.add(option);
     }
 }
@@ -301,7 +310,6 @@ function init(api, verb, query) {
             } else {
                 console.error("Invalid response, missing output\n", res.response);
             }
-
         });
 
         ws.onevent("*", function gotevent(obj) {

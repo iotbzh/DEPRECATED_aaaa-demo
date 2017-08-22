@@ -19,40 +19,39 @@
   NOTE: strict mode: every global variables should be prefixed by '_'
 --]]
 
-function _Mpdc_To_Multimedia (source, args, query)
-     printf ("--InLua-- _Mpdc_To_Multimedia arg=%s query=%s", Dump_Table(args), Dump_Table(query))
+function _Mpdc_To_Multimedia_Request (request, client, control)
+    printf ("--InLua-- _Mpdc_To_Multimedia request client=%s", Dump_Table(client))
 
      -- in strict mode every variables should be declared
     local err=0
+    local ctlhal={}
     local response={}
+    local apihal={}
 
     if (_MPDC_CTX["multimedia"] == nil) then
        AFB_ERROR("_Mpdc_To_Multimedia no MPDC context for multimedia in _MPDC_CTX=%s", Dump_Table(_MPDC_CTX))
-       return 1 -- control refuse
+       return 1 -- request refuse
     end
 
-    -- Parse query and search for action
-    if (query["action"] == nil) then
-      AFB_ERROR ("_Mpdc_To_Multimedia no action in request=%s", query)
-      return 1 -- control refused
+    -- Parse client and search for action
+    if (client["action"] == nil) then
+      AFB_ERROR ("_Mpdc_To_Multimedia no action in request=%s", client)
+      return 1 -- request refused
     end
 
     -- So far request looks good let's send it to MPDC
-    local verb= query["action"]  -- use action as API verb
-    query["action"]=nil  -- remove action and use remain query part as it
-    query["session"]=_MPDC_CTX["multimedia"] -- retreive multimedia MPDC session
+    local verb= client["action"]  -- use action as API verb
+    client["action"]=nil  -- remove action and use remain client part as it
+    client["session"]=_MPDC_CTX["multimedia"] -- retreive multimedia MPDC session
 
     -- send request to MPDC synchronously
-    local err, response= AFB:servsync ("mpdc", verb, query)
-
-    -- Note: in current version controls only return a status. Also we may safely ignore API response
-    -- Api returning Data may use request. In the feature a special tag may indicate that a control
-    -- is allowed to return data.
-
+    err, response= AFB:servsync ("mpdc", verb, client)
     if (err) then
-        AFB:error("--LUA:_Mpdc_To_Multimedia refuse response=%s", response)
-        return 1 -- control refused
+        AFB:fail(request, "--LUA:_Mpdc_To_Multimedia refuse response=%s", response)
+        return 1 -- request refused
     end
+
+    AFB:success(request, response)
 
     return 0 -- control accepted
 end

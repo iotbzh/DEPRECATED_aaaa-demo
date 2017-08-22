@@ -60,11 +60,8 @@
                 </td>
                 <td class="panel-music-zones">
                     <select class="zones" id="musicZonesSelect"
-                    onclick="callRequest('_Mpdc_To_Multimedia', {action:'output', only:true, target: JSON.parse(this.value)})"></select>
+                    onclick="callRequest('_Mpdc_To_Multimedia_Request', {action:'output', only:true, target: JSON.parse(this.value)})"></select>
                 </td>
-                <!--
-                    callbinder('control', 'request', {'target':'_Mpdc_To_Multimedia', 'action': 'output', 'args':{only:true, target:{name: this.value, enable:true}}})
-                -->
             </tr>
         </table>
 
