@@ -137,6 +137,11 @@ td.panel-music-zones {
     width: 20%;
 }
 
+td.panel-nav-playlist,
+td.panel-emergency-playlist {
+    width: 50%;
+}
+
 div.panel-logger {
     height: 70%;
 }

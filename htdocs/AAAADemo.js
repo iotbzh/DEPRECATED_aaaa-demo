@@ -236,8 +236,8 @@ function volumeUpdateInput(val) {
 //***********************
 // Music playlist and zone
 //***********************
-function updatePlaylist(list) {
-    var musicSelect = document.getElementById("musicSelect");
+function updatePlaylist(selectID, list) {
+    var sel = document.getElementById(selectID);
     var el;
     for (el in list) {
         var option = document.createElement("option");
@@ -246,12 +246,17 @@ function updatePlaylist(list) {
         if (list[el].artist && list[el].artist.length > 0) {
             option.text += list[el].artist[0];
         }
-        if (list[el].title && list[el].title.length > 0) {
-            option.text += " - " + list[el].title[0];
-        } else if (list[el].uri) {
-            option.text += " - " + list[el].uri.replace(".mp3", "");
+        if (option.text.length > 0) {
+            option.text += " - ";
         }
-        musicSelect.add(option);
+        if (list[el].title && list[el].title.length > 0) {
+            option.text += list[el].title[0];
+        } else if (list[el].uri) {
+            option.text += list[el].uri.replace(".mp3", "");
+        } else {
+            continue;
+        }
+        sel.add(option);
     }
 }
 
@@ -300,13 +305,23 @@ function init(api, verb, query) {
 
         // Event subscription + retrieve initial state
         callbinder(api, verb, query, function (res) {
-            if (res.response && res.response.playlist) {
-                updatePlaylist(res.response.playlist);
-            } else {
-                console.error("Invalid response, missing playlist\n", res.response);
-            }
-            if (res.response && res.response.output) {
-                updateZones(res.response.output);
+
+            // Update playlists selection
+            [
+                {name: "multimedia", select: "musicSelect"},
+                {name: "navigation", select: "navSelect"},
+                {name: "emergency", select: "emergencySelect"},
+            ].forEach(function (el) {
+                // sanity check
+                if (!res.response || !("multimedia" in res.response)) {
+                    console.error("Invalid response, missing " + el.name + ": ", res.response);
+                    return;
+                }
+                updatePlaylist(el.select, res.response[el.name].playlist);
+            });
+
+            if (res.response.multimedia.output) {
+                updateZones(res.response.multimedia.output);
             } else {
                 console.error("Invalid response, missing output\n", res.response);
             }

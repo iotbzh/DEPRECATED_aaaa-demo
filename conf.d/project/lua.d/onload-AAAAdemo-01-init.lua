@@ -121,10 +121,10 @@ function _Subscribe (request, args)
         ["session"]=_MPDC_CTX["multimedia"],
         ["current"]= true
     }
-    local err, playlist = AFB:servsync("mpdc", "playlist", qPlaylist)
-    printf ("--InLua-- playlist = %s", Dump_Table(playlist))
+    local err, playlist_multi = AFB:servsync("mpdc", "playlist", qPlaylist)
+    --printf ("--InLua-- playlist = %s", Dump_Table(playlist_multi))
     if (not err) then
-        playlist = playlist["response"]
+        playlist_multi = playlist_multi["response"]
     end
 
     local qOutput = {
@@ -136,15 +136,44 @@ function _Subscribe (request, args)
         }
     }
     local err, mpcOutput = AFB:servsync("mpdc","output", qOutput)
-    printf ("--InLua-- mpcOutput = %s", Dump_Table(mpcOutput))
+    --printf ("--InLua-- mpcOutput = %s", Dump_Table(mpcOutput))
     if (not err) then
         mpcOutput = mpcOutput["response"]
     end
 
+    -- Retrieve initial state of MPDC / Navigation
+    local queryNav = {
+        ["session"]=_MPDC_CTX["navigation"],
+        ["current"]= true
+    }
+    local err, playlist_nav = AFB:servsync("mpdc", "playlist", queryNav)
+    if (not err) then
+        playlist_nav = playlist_nav["response"]
+    end
+
+    -- Retrieve initial state of MPDC / Navigation
+    local queryEmer = {
+        ["session"]=_MPDC_CTX["emergency"],
+        ["current"]= true
+    }
+    local err, playlist_emer = AFB:servsync("mpdc", "playlist", queryEmer)
+    if (not err) then
+        playlist_emer = playlist_emer["response"]
+    end
+
+
     local response = {
-        ["version"]=version,
-        ["playlist"]= playlist,
-        ["output"]= mpcOutput
+        ["version"] = version,
+        ["multimedia"] = {
+            ["playlist"] = playlist_multi,
+            ["output"]= mpcOutput
+        },
+        ["navigation"] = {
+            ["playlist"] = playlist_nav,
+        },
+        ["emergency"] = {
+            ["playlist"] = playlist_emer,
+        }
     }
 
     AFB:success(request, response)

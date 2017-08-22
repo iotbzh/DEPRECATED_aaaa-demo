@@ -8,6 +8,15 @@
 #    aaaa started with --ws-server:/var/tmp/afb-ws/control
 # -------------------------------------------------------------------
 
+# FIXME - temporary hack to create playlist manually
+# Load default playlists
+MPD_PORT=6601 mpc clear
+MPD_PORT=6601 mpc load default
+MPD_PORT=6602 mpc clear
+MPD_PORT=6602 mpc load default
+MPD_PORT=6603 mpc clear
+MPD_PORT=6603 mpc load default
+
 
 # BUG CONTROL_xxx_PATH should be absolute
 DEMOPATH=$PWD/`dirname $0`
@@ -102,4 +111,7 @@ else
 fi
 echo $AFB_DAEMON_CMD
 echo ------------------------------------------------------------
+
 exec $AFB_DAEMON_CMD
+#gdbserver localhost:4444 $AFB_DAEMON_CMD
+
