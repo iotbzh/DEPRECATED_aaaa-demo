@@ -19,15 +19,8 @@
   NOTE: strict mode: every global variables should be prefixed by '_'
 --]]
 
-function  _Subscribe_Client_To_Events(source, args, query)
-    printf ("--InLua-- _Subscribe_Client_To_Event arg=%s query=%s", Dump_Table(args), Dump_Table(query))
-
-    -- subscribe to events
-    AFB:subscribe (request, _EventHandle)
-end
-
-function _Mpdc_To_Multimedia (source, args, query)
-    printf ("--InLua-- _Mpdc_To_Multimedia arg=%s query=%s", Dump_Table(args), Dump_Table(query))
+function _Mpdc_To_Multimedia (request, client, control)
+    printf ("--InLua-- _Mpdc_To_Multimedia control=%s client=%s", Dump_Table(control), Dump_Table(client))
 
      -- in strict mode every variables should be declared
     local err=0
@@ -40,19 +33,19 @@ function _Mpdc_To_Multimedia (source, args, query)
        return 1 -- control refuse
     end
 
-    -- Parse Query and search for action
-    if (query["action"] == nil) then
-      AFB_ERROR ("_Mpdc_To_Multimedia no action in request=%s", query)
+    -- Parse client and search for action
+    if (client["action"] == nil) then
+      AFB_ERROR ("_Mpdc_To_Multimedia no action in request=%s", client)
       return 1 -- control refused
     end
 
     -- So far request looks good let's send it to MPDC
-    local verb= query["action"]  -- use action as API verb
-    query["action"]=nil  -- remove action and use remain query part as it
-    query["session"]=_MPDC_CTX["multimedia"] -- retreive multimedia MPDC session
+    local verb= client["action"]  -- use action as API verb
+    client["action"]=nil  -- remove action and use remain client part as it
+    client["session"]=_MPDC_CTX["multimedia"] -- retreive multimedia MPDC session
 
     -- send request to MPDC synchronously
-    err, response= AFB:servsync ("mpdc", verb, query)
+    err, response= AFB:servsync ("mpdc", verb, client)
 
     -- Note: in current version controls only return a status. Also we may safely ignore API response
     -- Api returning Data may use request. In the feature a special tag may indicate that a control
@@ -63,6 +56,7 @@ function _Mpdc_To_Multimedia (source, args, query)
         return 1 -- control refused
     end
 
+    AFB:success(request, response)
+
     return 0 -- control accepted
 end
-

@@ -28,7 +28,7 @@
 _MPDC_CTX={}
 
 -- Create event on Lua script load
--- SEB FIXME _EventHandle=AFB:evtmake("AAAADemoEvent")
+_EventHandle={}
 
 function _Mpdc_Async_CB (error, result, context)
     if (error) then
@@ -53,6 +53,8 @@ end
 -- Display receive arguments and echo them to caller
 function _Init_AAAAdemo_App (source, args)
     printf ("--InLua-- _Init_AAAAdemo_App args=%s", Dump_Table(args))
+
+    _EventHandle=AFB:evtmake("AAAADemoEvent")
 
     -- Connect to 3 configured MPDc. Note that we use the same
     -- table for service query and callback context.
@@ -92,14 +94,68 @@ function _Init_AAAAdemo_App (source, args)
     return 0 -- happy end
 end
 
--- Retreive the playlist
-function _Get_playlist (request, args)
-    AFB:notice("LUA _Get_playlist")
+-- Events subsricption and retreive initial Multimedia state
+function _Subscribe (request, args)
+    printf ("--InLua-- Subscribe to events")
 
-    local handle = io.popen("MPD_PORT=6601 mpc ls")
-    local result = handle:read("*a")
-    handle:close()
+    if (args == nil or args["label"] == nil) then
+        AFB:fail(request, "_Subscribe: missing args:{'label':xxx}")
+        return
+    end
 
-    -- fulup Embdeded table ToeDone AFB:success (request, response)
-    AFB:success (request,  {["target"]="Get_playlist", ["result"]=result})
+    -- subscribe to event
+    AFB:subscribe (request, _EventHandle)
+
+    -- Retrieve initial state of MPDC / Multimedia
+    local qVersion = {
+        ["session"]=_MPDC_CTX["multimedia"]
+    }
+    local err, version = AFB:servsync("mpdc", "version", qVersion)
+    if err then
+        AFB:fail(request, "_Subscribe: fail to connect to MPDC server")
+        return
+    end
+    version = version.response
+
+    local qPlaylist = {
+        ["session"]=_MPDC_CTX["multimedia"],
+        ["current"]= true
+    }
+    local err, playlist = AFB:servsync("mpdc", "playlist", qPlaylist)
+    printf ("--InLua-- playlist = %s", Dump_Table(playlist))
+    if (not err) then
+        playlist = playlist["response"]
+    end
+
+    local qOutput = {
+        ["session"]=_MPDC_CTX["multimedia"],
+        ["list"]=true,
+        ["target"] = {
+            ["all"]=true,
+            ["enable"]=true
+        }
+    }
+    local err, mpcOutput = AFB:servsync("mpdc","output", qOutput)
+    printf ("--InLua-- mpcOutput = %s", Dump_Table(mpcOutput))
+    if (not err) then
+        mpcOutput = mpcOutput["response"]
+    end
+
+    local response = {
+        ["version"]=version,
+        ["playlist"]= playlist,
+        ["output"]= mpcOutput
+    }
+
+    AFB:success(request, response)
+
+    -- notify any clients
+    local evt = {
+        ["label"]="newClient",
+        ["value"]=args["label"],
+        ["info"]=args["info"]
+    }
+    AFB:evtpush (_EventHandle, evt)
+
+    return 0 -- happy end
 end

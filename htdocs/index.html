@@ -10,7 +10,7 @@
     <script type="text/javascript" src="AAAADemo.js"></script>
 </head>
 
-<body class="page-content" onload="init('control','request', {'target':'subscribe'})">
+<body class="page-content" onload="init('control','request', {'target':'_Subscribe', 'args':{label:'demoHtml5Client'}})">
 
     <table style="width: 100%">
         <tr>
@@ -18,23 +18,20 @@
             <td style="width:70%; text-align:center;">
                 <h1 id="title">Audio-bindings Demo</h1>
             </td>
-            <td> <button class="btn-conn" id="connected" onclick="init('control', 'dispatch', {'target':'subscribe'});">Binder Connection Fail</button></td>
+            <td> <button class="btn-conn" id="connected" onclick="init('control','request', {'target':'_Subscribe', 'args':{label:'demoHtml5Client'}})">Binder Connection Fail</button></td>
         </tr>
     </table>
 
     <div class="dashboard">
         <div class="btn-bar">
             <div class="btn-barbar">
-                <button class="btn-icon" id="phone-call" onclick="callbinder('control','dispatch' ,{'target':'phone','args':{'apihal':sndcard}});">
-            </button>
+                <button class="btn-icon" id="phone-call" onclick="console.log('TODO')"></button>
 
-                <button class="btn-icon" id="navigation" onclick="callbinder('control','dispatch' ,{'target':'navigation','args':{'apihal':sndcard}});">
-            </button>
+                <button class="btn-icon" id="navigation" onclick="console.log('TODO')"></button>
 
-                <button class="btn-icon" id="music" onclick="callbinder('control','dispatch' ,{'target':'multimedia', args:{'action':'play',toggle:true}});">
-            </button>
-                <button class="btn-icon" id="emergency" onclick="callbinder('control','request', {'target': '_Simple_Echo_Args', 'args':{'apihal':sndcard}});">
-            </button>
+                <button class="btn-icon" id="music" onclick="btnMusicStartStop();"></button>
+
+                <button class="btn-icon" id="emergency" onclick="callbinder('control','request', {'target':'_Simple_Timer_Test', args:{label:'MyTimer', 'delay':3000, 'count':10}});"></button>
             </div>
         </div>
 
@@ -43,23 +40,31 @@
         </div>
 
         <table class="panel-table">
+            <th>Speed</th>
+            <th>Volume</th>
+            <th>Music player</th>
+            <th>Music zones</th>
             <tr>
                 <td class="panel-speed">
-                    <h2>Speed</h2>
                     <button class="btn-incdec" onclick="speedDec()">-</button>
                     <input class="speed" id="speed" maxlength="9" value="90 km/h" </input>
                     <button class="btn-incdec" onclick="speedInc()">+</button>
                 </td>
                 <td class="panel-sound">
-                    <h2>Volume</h2>
                     <button class="btn-incdec" onclick="volumeDec()">-</button>
                     <input class="sound" id="volume" maxlength="3" value="20" </input>
                     <button class="btn-incdec" onclick="volumeInc()">+</button>
                 </td>
-                <td class="panel-music">
-                    <h2>Music player</h2>
-                    <select class="music" id="musicSelect"></select>
+                <td class="panel-music-playlist">
+                    <select class="playlist" id="musicSelect"></select>
                 </td>
+                <td class="panel-music-zones">
+                    <select class="zones" id="musicZonesSelect"
+                    onclick="callRequest('_Mpdc_To_Multimedia', {action:'output', only:true, target: JSON.parse(this.value)})"></select>
+                </td>
+                <!--
+                    callbinder('control', 'request', {'target':'_Mpdc_To_Multimedia', 'action': 'output', 'args':{only:true, target:{name: this.value, enable:true}}})
+                -->
             </tr>
         </table>
 

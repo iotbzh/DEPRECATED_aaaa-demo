@@ -83,19 +83,20 @@ button.btn-conn {
 
 input.speed,
 input.sound,
-select.music,
+select.playlist,
+select.zones,
 button.btn-incdec {
     width: 6em;
     text-align: center;
-    font-size: x-large;
+    font-size: large;
 }
 
 button.btn-incdec {
     width: 2em;
 }
 
-select.music {
-    width: 70%;
+select.playlist, select.zones {
+    width: 90%;
 }
 
 #logger-cmd, #logger-event {
@@ -124,9 +125,11 @@ table.panel-table td {
 td.panel-speed td.panel-sound {
     width: 25%;
 }
-
-td.panel-music {
+td.panel-music-playlist {
     width: 50%;
+}
+td.panel-music-zones {
+    width: 25%;
 }
 
 div.panel-logger {
@@ -166,6 +169,11 @@ table.table-logger tr {
     text-decoration: underline;
 }
 
+.action-event {
+    color: violet;
+    text-decoration: underline;
+}
+
 .string {
     color: lightskyblue;
 }
@@ -175,7 +183,7 @@ table.table-logger tr {
 }
 
 .boolean {
-    color: blue;
+    color: deepskyblue;
 }
 
 .null {

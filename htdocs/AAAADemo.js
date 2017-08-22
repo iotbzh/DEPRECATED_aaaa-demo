@@ -2,57 +2,41 @@ var afb = new AFB("api", "mysecret");
 var ws;
 var sndcard = "hw:0";
 var evtidx = 0;
-var numid = 0;
 
-var musicList = [
-    "Track 1",
-    "Track 2",
-    "Track 3"
-];
-
-function replyok(obj) {
-    log.reply(obj);
-}
-
-function replyerr(obj) {
-    log.error(obj);
-}
-
-function gotevent(obj) {
-    log.event(obj);
-
-}
-
-/************************/
+//***********************
 // Logger
-/************************/
+//***********************
 var log = {
     command: function (api, verb, query) {
         var q = urlws + "/" + api + "/" + verb + "?query=" + JSON.stringify(query);
-        console.log("subscribe api=" + api + " verb=" + verb + " query=" + query);
-        log.write("COMMAND", q + "\n\n");
+        console.log("command: api=" + api + " verb=" + verb + " query=", query);
+        log.write("COMMAND", "", q + "\n\n");
     },
 
     event: function (obj) {
         console.log("gotevent:" + JSON.stringify(obj));
-        log.write("EVENT", (evtidx++) + ": " + JSON.stringify(obj) + "\n\n");
+        log.write("EVENT", (evtidx++), log.syntaxHighlight(obj) + "\n\n");
     },
 
     reply: function (obj) {
         console.log("replyok:" + JSON.stringify(obj));
-        log.write("REPLY", log.syntaxHighlight(obj) + "\n\n");
+        log.write("REPLY", "", log.syntaxHighlight(obj) + "\n\n");
     },
 
     error: function (obj) {
         console.log("replyerr:" + JSON.stringify(obj));
-        log.write("ERROR", log.syntaxHighlight(obj) + "\n\n");
+        log.write("ERROR", "", log.syntaxHighlight(obj) + "\n\n");
     },
 
-    write: function (action, msg) {
-        var logger = document.getElementById("logger-cmd");
+    write: function (action, index, msg) {
+        var logger = document.getElementById(action == "EVENT" ? "logger-event" : "logger-cmd");
 
-        aclass = 'action-' + action.toLowerCase();
-        logger.innerHTML += '<span class="' + aclass + ' ">' + action + ':</span> ';
+        cls = 'action-' + action.toLowerCase();
+        var txt = action
+        if (index.toString() != "") {
+            txt += " " + index.toString();
+        }
+        logger.innerHTML += '<span class="' + cls + ' ">' + txt + ':</span> ';
         logger.innerHTML += msg;
 
         // auto scroll down
@@ -86,33 +70,87 @@ var log = {
 
 };
 
-
-/************************/
-// Buttons bar management
-/************************/
-
-// On button click from HTML page
-function callbinder(api, verb, query) {
+//***********************
+// Generic function to call binder
+//************************
+function callbinder(api, verb, query, cbOK, cbErr) {
     log.command(api, verb, query)
 
+    // FIXME SEB A SUP
+    // Update UI according to target action
     switch (query.target) {
         case "phone":
             btnPhoneAnimate(5);
             break;
-        case "multimedia":
-            btnMusicToogle();
-            break;
 
         case "navigation":
+            /* just for test
             btnShake("navigation");
             btnShake("phone-call");
+            */
             break;
 
     }
-    ws.call(api + "/" + verb, query).then(replyok, replyerr);
 
+    var ccbOK = cbOK;
+    var replyok = function (obj) {
+        log.reply(obj);
+        if (ccbOK)
+            ccbOK(obj);
+    }
+
+    var ccbErr = cbErr;
+    var replyerr = function (obj) {
+        log.error(obj);
+        if (ccbErr)
+            ccbErr();
+    }
+
+    ws.call(api + "/" + verb, query).then(replyok, replyerr);
 }
 
+function callRequest(target, args) {
+    return callbinder('control', 'request', {target: target, args: args});
+}
+
+function callDispatch() {
+    return callbinder('control', 'dispatch', {target: target, args: args});
+}
+
+//***********************
+// Buttons bar management
+//***********************
+
+//*******
+// Music
+//*******
+var btnMusicState = 1;
+
+function IconMusicToogle() {
+    var elem = document.getElementById("music");
+    elem.style.backgroundImage = (btnMusicState) ? 'url(assets/music-pause.png)' : 'url(assets/music-play.png)';
+    btnMusicState = !btnMusicState;
+}
+
+function btnMusicStartStop() {
+    var query = {
+        target: 'multimedia',
+        args: {
+            action: '',
+            toggle: true
+        }
+    };
+    query.args.action = (btnMusicState) ? 'play' : 'stop';
+    callbinder('control', 'dispatch', query,
+        function (res) {
+            IconMusicToogle();
+        }
+    );
+}
+
+//*******
+// Phone
+//*******
 var btnPhoneImages = [
     "assets/phone-call.png",
     "assets/phone-call-emit1.png",
@@ -142,14 +180,6 @@ function btnPhoneAnimate(timeout) {
     }
 }
 
-var btnMusicState = 0;
-
-function btnMusicToogle() {
-    var elem = document.getElementById("music");
-    elem.style.backgroundImage = (btnMusicState) ? 'url(assets/music-play.png)' : 'url(assets/music-pause.png)';
-    btnMusicState = !btnMusicState;
-}
-
 function btnShake(btnId) {
     var elem = document.getElementById(btnId);
     prevClass = elem.className;
@@ -158,9 +188,10 @@ function btnShake(btnId) {
         elem.className = prevClass;
     }, 1000);
 }
-/************************/
+
+//***********************
 // Speed management
-/************************/
+//***********************
 var SPEED_INCREMENT = 5;
 
 function speedInc() {
@@ -177,9 +208,9 @@ function speedUpdateInput(val) {
     elem.value = (speed + val).toString() + ' km/h';
 }
 
-/************************/
+//***********************
 // Sound volume management
-/************************/
+//***********************
 var VOLUME_INCREMENT = 1;
 
 function volumeInc() {
@@ -200,124 +231,86 @@ function volumeUpdateInput(val) {
     elem.value = (volume + val).toString();
 }
 
-
-
-
-
-// Retrieve music playlist
-function queryPlaylist(elemid, api, verb, query) {
-    // TODO: Get playlist from lua script
-    musicList.forEach(function (el) {
+//***********************
+// Music playlist and zone
+//***********************
+function updatePlaylist(list) {
+    var musicSelect = document.getElementById("musicSelect");
+    var el;
+    for (el in list) {
         var option = document.createElement("option");
-        option.text = el;
+        option.text = "";
+        if (list[el].artist && list[el].artist.length > 0) {
+            option.text += list[el].artist[0];
+        }
+        if (list[el].title && list[el].title.length > 0) {
+            option.text += " - " + list[el].title[0];
+        } else if (list[el].uri) {
+            option.text += " - " + list[el].uri.replace(".mp3", "");
+        }
         musicSelect.add(option);
-    });
-
-/*
-
-    console.log("querySelectList elemid=%s api=%s verb=%s query=%s", elemid, api, verb, query);
-
-    var selectobj = document.getElementById(elemid);
-    if (!selectobj) {
-        return;
     }
-
-    // onlick update selected HAL api
-    selectobj.onclick = function () {
-        sndcard = this.value;
-        console.log("Default Selection=" + sndcard);
-    };
-
-    function gotit(result) {
-
-        // display response as for normal onclick action
-        replyok(result);
-        var response = result.response;
-
-        // fulfill select with avaliable active HAL
-        for (idx = 0; idx < response.length; idx++) {
-            var opt = document.createElement('option');
-
-            // Alsa LowLevel selection mode
-            if (response[idx].name) opt.text = response[idx].name;
-            if (response[idx].devid) opt.value = response[idx].devid;
-
-            // HAL selection mode
-            if (response[idx].shortname) opt.text = response[idx].shortname;
-            if (response[idx].api) opt.value = response[idx].api;
-
-            selectobj.appendChild(opt);
-        }
-
-        sndcard = selectobj.value;
-    }
-
-    var question = urlws + "/" + api + "/" + verb + "?query=" + JSON.stringify(query);
-    document.getElementById("question").innerHTML = syntaxHighlight(question);
-
-    // request lowlevel ALSA to get API list
-    ws.call(api + "/" + verb, query).then(gotit, replyerr);
-*/
 }
 
-function refresh_list(self, api, verb, query) {
-    console.log("refresh_list id=%s api=%s verb=%s query=%s", self.id, api, verb, query);
+function updateZones(output) {
+    var zoneSelect = document.getElementById("musicZonesSelect");
+    var el;
 
-    if (self.value > 0) return;
+    // Add all entry
+    var option = document.createElement("option");
+    option.text = "all";
+    option.selected = "selected";
+    option.value = JSON.stringify({"all": true, "enable": true})
+    zoneSelect.add(option);
 
-    // onlick update selected HAL api
-    self.onclick = function () {
-        numid = parseInt(self.value);
-        console.log("Default numid=%d", numid);
-    };
-
-    function gotit(result) {
-
-        // display response as for normal onclick action
-        replyok(result);
-        var response = result.response;
-
-
-
-        // fulfill select with avaliable active HAL
-        for (idx = 0; idx < response.length; idx++) {
-            var opt = document.createElement('option');
-
-            // Alsa LowLevel selection mode
-            opt.text = response[idx].name + ' id=' + response[idx].id;
-            opt.value = response[idx].id;
-
-            self.appendChild(opt);
+    for (el in output) {
+        if (!output[el].enable) {
+            continue;
         }
-        self.selectedIndex = 2;
-        numid = parseInt(self.value);
+        var option = document.createElement("option");
+        option.text = output[el].name;
+        option.value = JSON.stringify({"name": output[el].name, "enable": true})
+        zoneSelect.add(option);
     }
-
-    var question = urlws + "/" + api + "/" + verb + "?query=" + JSON.stringify(query);
-    document.getElementById("question").innerHTML = syntaxHighlight(question);
-
-    // request lowlevel ALSA to get API list
-    ws.call(api + "/" + verb, query).then(gotit, replyerr);
 }
 
-function init(elemid, api, verb, query) {
+//***********************
+// Initialization
+//***********************
+function init(api, verb, query) {
 
     var btnConn = document.getElementById("connected");
     var page = document.getElementsByClassName("page-content")[0];
     var dashboard = document.getElementsByClassName("dashboard")[0];
-    var musicSelect = document.getElementById("musicSelect");
 
     function onopen() {
-        setTimeout(function() { btnShake("phone-call");}, 2000);
+        // FIXME SEB A SUP
+        setTimeout(function () {
+            btnShake("phone-call");
+        }, 2000);
 
-        // Init playlist of musics
-        queryPlaylist(elemid, api, verb, query);
+        // Event subscription + retrieve initial state
+        callbinder(api, verb, query, function (res) {
+            if (res.response && res.response.playlist) {
+                updatePlaylist(res.response.playlist);
+            } else {
+                console.error("Invalid response, missing playlist\n", res.response);
+            }
+            if (res.response && res.response.output) {
+                updateZones(res.response.output);
+            } else {
+                console.error("Invalid response, missing output\n", res.response);
+            }
+
+        });
+
+        ws.onevent("*", function gotevent(obj) {
+            log.event(obj);
+        });
 
         btnConn.innerHTML = "Binder Connection Active";
         btnConn.style.background = "lightgreen";
         page.style.background = dashboard.style.opacity = dashboard.style.zIndex = "";
-
-        ws.onevent("*", gotevent);
     }
 
     function onabort() {
