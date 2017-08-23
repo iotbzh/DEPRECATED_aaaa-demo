@@ -107,6 +107,54 @@ function callDispatch(target, args) {
 //***********************
 
 //*******
+// Phone
+//*******
+var btnPhoneImages = [
+    "assets/phone-call.png",
+    "assets/phone-call-emit1.png",
+    "assets/phone-call-emit2.png",
+    "assets/phone-call-emit3.png",
+];
+
+function btnPhone() {
+    var infoText = document.getElementById("info-text");
+    var elem = document.getElementById("phone-call");
+    var loop = 0;
+    var idx = 1;
+    elem.style.backgroundImage = 'url(' + btnPhoneImages[idx] + ')';
+
+    var timeout = 10;   // 5sec
+    var id = setInterval(anim, 500);
+    infoText.innerHTML = "Calling...";
+
+    function anim() {
+        if (++idx >= btnPhoneImages.length) {
+            idx = 0;
+        }
+        elem.style.backgroundImage = 'url(' + btnPhoneImages[idx] + ')';
+        if (loop++ > timeout) {
+            elem.style.backgroundImage = 'url(' + btnPhoneImages[0] + ')';
+            infoText.innerHTML = "";
+            clearInterval(id);
+        }
+    }
+}
+//*******
+// Navigation
+//*******
+function btnNavigation() {
+    var elem = document.getElementById("navSelect");
+    var selElem = JSON.parse(elem.value);
+    var query = {
+        action: 'control',
+        toggle: selElem.position
+    };
+    callRequest('_Mpdc_To_Navigation_Request', query).then(function (res) {
+        btnShake("navigation");
+    });
+}
+
+//*******
 // Music
 //*******
 var btnMusicState = 1;
@@ -130,36 +178,20 @@ function btnMusicStartStop() {
 }
 
 //*******
-// Phone
+// Emergency
 //*******
-var btnPhoneImages = [
-    "assets/phone-call.png",
-    "assets/phone-call-emit1.png",
-    "assets/phone-call-emit2.png",
-    "assets/phone-call-emit3.png",
-];
-
-function btnPhoneAnimate(timeout) {
-    var infoText = document.getElementById("info-text");
-    var elem = document.getElementById("phone-call");
-    var loop = 0;
-    var idx = 1;
-    elem.style.backgroundImage = 'url(' + btnPhoneImages[idx] + ')';
-    var id = setInterval(anim, 500);
-    infoText.innerHTML = "Calling...";
-
-    function anim() {
-        if (++idx >= btnPhoneImages.length) {
-            idx = 0;
-        }
-        elem.style.backgroundImage = 'url(' + btnPhoneImages[idx] + ')';
-        if (loop++ > timeout) {
-            elem.style.backgroundImage = 'url(' + btnPhoneImages[0] + ')';
-            infoText.innerHTML = "";
-            clearInterval(id);
-        }
-    }
+function btnEmergency() {
+    var elem = document.getElementById("emergencySelect");
+    var selElem = JSON.parse(elem.value);
+    var query = {
+        action: 'control',
+        toggle: selElem.position
+    };
+    callRequest('_Mpdc_To_Emergency_Request', query).then(function (res) {
+        btnShake("emergency");
+    });
 }
+
 
 function btnShake(btnId) {
     var elem = document.getElementById(btnId);
