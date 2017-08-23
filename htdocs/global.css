@@ -23,8 +23,13 @@ body.page-content {
     margin: 0;
 }
 
+#connected {
+    width: 80%
+}
+
 #monitoring {
     background-color: yellow;
+    width: 80%
 }
 
 .dashboard {
