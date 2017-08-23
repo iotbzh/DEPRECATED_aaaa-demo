@@ -52,6 +52,10 @@ DEMOPATH=$PWD/`dirname $0`
   export CONTROL_LUA_PATH=$DEMOPATH/conf.d/project/lua.d
   export AFB_BINDER_NAME=AAAAdemo
 
+# include Monitoring
+ if test -d $HOME/opt/afb-monitoring; then
+   AFB_MONITORING="--alias=/monitoring:$HOME/opt/afb-monitoring"
+ fi 
 
 # Fulup OpenSuse Home Config
   if [ $HOSTNAME = fulup-desktop ]; then
@@ -60,10 +64,9 @@ DEMOPATH=$PWD/`dirname $0`
 
     AFB_DEBUG_OPTION="--tracereq=common --token= --verbose"
 
-    CTL_HOMEDEV=$HOME/Workspace/AGL-AppFW/audio-bindings-dev
-    MPDC_HOMEDEV=$HOME/Workspace/AGL-AppFW/mpdc-binding
+    CTL_HOMEDEV=$HOME/Workspace/AGL-AppFW/afb-controller
+    MPDC_HOMEDEV=$HOME/Workspace/AGL-AppFW/afb-mpdc
     AAAA_HOMEDEV=$HOME/Workspace/AGL-AppFW/afb-aaaa
-    MONITORING_HOMEDEV=$HOME/opt/afb-monitoring
   fi
 
 # Seb's Ubuntu Config
@@ -76,7 +79,10 @@ DEMOPATH=$PWD/`dirname $0`
     CTL_HOMEDEV=$HOME/Work/git/afb-controller
     MPDC_HOMEDEV=$HOME/Work/git/afb-mpdc
     AAAA_HOMEDEV=$HOME/Work/git/afb-aaaa
-    MONITORING_HOMEDEV=$HOME/opt/afb-monitoring
+
+    # Ubuntu 16.4 need alsa-1.1.4 manual installation
+    export LD_LIBRARY_PATH=/opt/AGL/lib/x86_64-linux-gnu:/opt/AGL/lib
+
   fi
 
 # Default installation path
@@ -118,12 +124,11 @@ done
 
 
 if [ $RUN_IN_GROUP = true ]; then
-    export LD_LIBRARY_PATH=/opt/AGL/lib/x86_64-linux-gnu:/opt/AGL/lib
     AFB_DAEMON_AAAA_CMD="afb-daemon --port=$AAAA_PORT --ldpaths=$AAAA_HOMEDEV/build --workdir=$AAAA_HOMEDEV/build \
-    --roothttp=$AAAA_HOMEDEV/htdocs --ws-server=$AAAA_SOCK $AFB_DEBUG_OPTION"
+    --roothttp=$AAAA_HOMEDEV/htdocs --ws-server=$AAAA_SOCK $AFB_DEBUG_OPTION "
 
-    AFB_DAEMON_DEMO_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING --binding=$MPDC_BINDING \
-    --ws-client=$AAAA_SOCK --workdir=$DEMOPATH --roothttp=./htdocs --alias=/monitoring:$MONITORING_HOMEDEV $AFB_DEBUG_OPTION"
+    AFB_DAEMON_DEMO_CMD="afb-daemon $AFB_MONITORING --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING --binding=$MPDC_BINDING \
+    --ws-client=$AAAA_SOCK --workdir=$DEMOPATH --roothttp=./htdocs $AFB_DEBUG_OPTION"
 else
 
     if test ! -d $WS_BINDIND_PATH; then
@@ -131,7 +136,7 @@ else
         exit
     fi
 
-    AFB_DAEMON_DEMO_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING \
+    AFB_DAEMON_DEMO_CMD="afb-daemon $AFB_MONITORING --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING \
     --workdir=$DEMOPATH --roothttp=./htdocs --ws-client=$MPDC_SOCK $AFB_DEBUG_OPTION"
 fi
 
