@@ -63,6 +63,7 @@ DEMOPATH=$PWD/`dirname $0`
     CTL_HOMEDEV=$HOME/Workspace/AGL-AppFW/audio-bindings-dev
     MPDC_HOMEDEV=$HOME/Workspace/AGL-AppFW/mpdc-binding
     AAAA_HOMEDEV=$HOME/Workspace/AGL-AppFW/afb-aaaa
+    MONITORING_HOMEDEV=$HOME/opt/afb-monitoring
   fi
 
 # Seb's Ubuntu Config
@@ -75,6 +76,7 @@ DEMOPATH=$PWD/`dirname $0`
     CTL_HOMEDEV=$HOME/Work/git/afb-controller
     MPDC_HOMEDEV=$HOME/Work/git/afb-mpdc
     AAAA_HOMEDEV=$HOME/Work/git/afb-aaaa
+    MONITORING_HOMEDEV=$HOME/opt/afb-monitoring
   fi
 
 # Default installation path
@@ -121,7 +123,7 @@ if [ $RUN_IN_GROUP = true ]; then
     --roothttp=$AAAA_HOMEDEV/htdocs --ws-server=$AAAA_SOCK $AFB_DEBUG_OPTION"
 
     AFB_DAEMON_DEMO_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING --binding=$MPDC_BINDING \
-    --ws-client=$AAAA_SOCK --workdir=$DEMOPATH --roothttp=./htdocs  $AFB_DEBUG_OPTION"
+    --ws-client=$AAAA_SOCK --workdir=$DEMOPATH --roothttp=./htdocs --alias=/monitoring:$MONITORING_HOMEDEV $AFB_DEBUG_OPTION"
 else
 
     if test ! -d $WS_BINDIND_PATH; then

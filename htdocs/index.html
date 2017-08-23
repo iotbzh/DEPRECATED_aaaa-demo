@@ -12,13 +12,17 @@
 
 <body class="page-content" onload="init('control','request', {'target':'_Subscribe', 'args':{label:'demoHtml5Client'}})">
 
-    <table style="width: 100%">
+    <table style="width:100%; margin-top:20px;">
         <tr>
             <td> <img id="logo-iot" src="assets/iot-bzh-logo-small.png"></td>
             <td style="width:70%; text-align:center;">
                 <h1 id="title">Audio-bindings Demo</h1>
             </td>
             <td> <button class="btn-conn" id="connected" onclick="init('control','request', {'target':'_Subscribe', 'args':{label:'demoHtml5Client'}})">Binder Connection Fail</button></td>
+        </tr>
+            <td></td>
+            <td style="width:70%;"></td>
+            <td><button id="monitoring" onclick="window.open('/monitoring/monitor.html','_monitor_demo')">Debug/Monitoring</a></button></td>
         </tr>
     </table>
 

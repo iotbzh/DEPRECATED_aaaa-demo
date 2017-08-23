@@ -23,6 +23,10 @@ body.page-content {
     margin: 0;
 }
 
+#monitoring {
+    background-color: yellow;
+}
+
 .dashboard {
     height: 95%;
     width: 80%;
