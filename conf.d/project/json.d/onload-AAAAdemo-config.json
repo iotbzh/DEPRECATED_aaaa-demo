@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "onload": [{
-            "label": "onload-default-profile",
+            "label": "onload-default",
             "info": "onload initialisation config",
             "require": ["mpdc"],
             "actions":
