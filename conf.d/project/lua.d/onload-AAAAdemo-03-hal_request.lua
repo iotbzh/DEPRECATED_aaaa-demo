@@ -34,7 +34,7 @@ function _Hal_SetVolume (request, args, control)
     for k, zn in pairs(_HAL_CTX[args["zone"]]) do
         -- send request to alsa synchronously
         local query = {
-            ["devid"]="hw:0",
+            ["devid"]=zn["slave"],
             ["ctl"]= {
                 ["id"] = zn["numid"],
                 ["val"] = args["volume"]
@@ -60,14 +60,20 @@ function _Hal_GetVolume (request, args, control)
     local res={}
 
     if (GetTableSize(_HAL_CTX) == 0) then
-       AFB:fail("_Hal_SetVolume HAL context _HAL_CTX not intialized")
+       AFB:fail("_Hal_GetVolume HAL context _HAL_CTX not intialized")
        return 1 -- request refuse
     end
 
-    for k, zn in pairs(_HAL_CTX[args["zone"]]) do
+    -- XXX : use front volume when all zone is requested
+    local znName = args["zone"]
+    if znName == "all" then
+        znName = "front"
+    end
+
+    for k, zn in pairs(_HAL_CTX[znName]) do
         -- send request to alsa synchronously
         local query = {
-            ["devid"]="hw:0",
+            ["devid"]=zn["slave"],
             ["ctl"]= {
                 ["id"] = zn["numid"],
                 ["val"] = ""
@@ -76,7 +82,7 @@ function _Hal_GetVolume (request, args, control)
         printf("--InLua-- _Hal_GetVolume query %s", Dump_Table(query))
         err, res= AFB:servsync ("alsacore", "getctl", query)
         if (err) then
-            AFB:fail(request, "--LUA:_Hal_SetVolume refuse response=%s", res)
+            AFB:fail(request, "--LUA:_Hal_GetVolume refuse response=%s", res)
             return 1 -- request refused
         end
     end

@@ -143,11 +143,12 @@ fi
 echo ------------------------------------------------------------
 echo "$AFB_DAEMON_AAAA_CMD"
 echo ""
-echo "$AFB_DAEMON_DEMO_CMD"
-echo ------------------------------------------------------------
-
 exec $AFB_DAEMON_AAAA_CMD &
 AAAA_pid=$!
-sleep 1
+sleep 1     ;# wait that binder has been started
+echo ""
 
+echo ------------------------------------------------------------
+echo "$AFB_DAEMON_DEMO_CMD"
+echo ""
 exec $AFB_DAEMON_DEMO_CMD
