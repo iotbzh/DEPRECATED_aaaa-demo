@@ -132,7 +132,7 @@ function callDispatch(target, args, cbOK, cbErr) {
 //*******
 var btnMusicState = 1;
 
-function IconMusicToogle() {
+function IconMusicToggle() {
     var elem = document.getElementById("music");
     elem.style.backgroundImage = (btnMusicState) ? 'url(assets/music-pause.png)' : 'url(assets/music-play.png)';
     btnMusicState = !btnMusicState;
@@ -143,10 +143,10 @@ function btnMusicStartStop() {
     var selElem = JSON.parse(musicSelect.value);
     var query = {
         action: 'control',
-        toogle: selElem.index
+        toggle: selElem.position
     };
     callDispatch('multimedia', query, function (res) {
-        IconMusicToogle();
+        IconMusicToggle();
     });
 }
 
