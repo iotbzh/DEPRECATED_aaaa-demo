@@ -9,13 +9,24 @@
 # -------------------------------------------------------------------
 
 # FIXME - temporary hack to create playlist manually
+
+# Rebuild playlist
+# rm -f /var/tmp/mpd/multimedia/mpdbase.db
+# mpd -v --no-daemon ./conf.d/project/mpd.d/multimedia-mpd.conf&
+#MPD_PORT=6601 mpc clear
+#MPD_PORT=6601 mpc findadd filename beethoven_fur_elise.mp3
+#MPD_PORT=6601 mpc findadd filename trio-divi-alkazabach.mp3
+#MPD_PORT=6601 mpc findadd filename Fire.mp3
+#MPD_PORT=6601 mpc findadd filename LAziza.mp3
+#MPD_PORT=6601 mpc playlist
+
 # Load default playlists
-MPD_PORT=6601 mpc clear
-MPD_PORT=6601 mpc load default
-MPD_PORT=6602 mpc clear
-MPD_PORT=6602 mpc load default
-MPD_PORT=6603 mpc clear
-MPD_PORT=6603 mpc load default
+#MPD_PORT=6601 mpc clear
+#MPD_PORT=6601 mpc load default
+#MPD_PORT=6602 mpc clear
+#MPD_PORT=6602 mpc load default
+#MPD_PORT=6603 mpc clear
+#MPD_PORT=6603 mpc load default
 
 
 # BUG CONTROL_xxx_PATH should be absolute
@@ -23,11 +34,15 @@ DEMOPATH=$PWD/`dirname $0`
 
 # Demo TCP port for HTML apps
   DEMO_PORT=1235
+  AAAA_PORT=1234
 
 # Service Unix Websocket Path
   WS_BINDIND_PATH=/var/tmp/afb-ws
+  mkdir -p $WS_BINDIND_PATH
   MPDC_SOCK=unix:$WS_BINDIND_PATH/mpdc
-  AAAA_SOCK=unix:$WS_BINDIND_PATH/control
+
+# AAAA HAL binder
+  AAAA_SOCK=unix:/var/tmp/afb-ws/alsacore
 
 # Lua compiler (On Unbutu name is lua53)
   LUAC=lua5.3
@@ -47,28 +62,32 @@ DEMOPATH=$PWD/`dirname $0`
 
     CTL_HOMEDEV=$HOME/Workspace/AGL-AppFW/audio-bindings-dev
     MPDC_HOMEDEV=$HOME/Workspace/AGL-AppFW/mpdc-binding
+    AAAA_HOMEDEV=$HOME/Workspace/AGL-AppFW/afb-aaaa
   fi
+
+# Seb's Ubuntu Config
   if [ $HOSTNAME = seb-laptop ]; then
     RUN_FROM_DEV_TREE=true
     RUN_IN_GROUP=true
 
     AFB_DEBUG_OPTION="--tracereq=common --token= --verbose"
 
-    CTL_HOMEDEV=$HOME/Work/git/audio-bindings
-    MPDC_HOMEDEV=$HOME/Work/git/mpdc-binding
+    CTL_HOMEDEV=$HOME/Work/git/afb-controller
+    MPDC_HOMEDEV=$HOME/Work/git/afb-mpdc
+    AAAA_HOMEDEV=$HOME/Work/git/afb-aaaa
   fi
 
 # Default installation path
   INSTALL_PREFIX=$HOME/opt
   CTL_INSTALL=$INSTALL_PREFIX/audio-bindings
-  MPDC_INSTALL=$INSTALL_PREFIX/mpdc-binding
+  MPDC_INSTALL=$INSTALL_PREFIX/afb-mpdc
 
 # Do not try to connect on default MPD at init time
 export MPDC_NODEF_CONNECT=1
 
 # Select Dev or Installed binding
 if [ $RUN_FROM_DEV_TREE = true ]; then
-    CTL_BINDING=$CTL_HOMEDEV/build/Controller-afb/afb-control-afb.so
+    CTL_BINDING=$CTL_HOMEDEV/build/afb-source/afb-control-afb.so
     MPDC_BINDING=$MPDC_HOMEDEV/build/afb-mpdclient/afb-mpdc-api.so
 else
     CTL_BINDING=$CTL_INSTALL/afb-control-afb.so
@@ -97,8 +116,12 @@ done
 
 
 if [ $RUN_IN_GROUP = true ]; then
-    AFB_DAEMON_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING --binding=$MPDC_BINDING \
-    --workdir=$DEMOPATH --roothttp=./htdocs  $AFB_DEBUG_OPTION"
+    export LD_LIBRARY_PATH=/opt/AGL/lib/x86_64-linux-gnu:/opt/AGL/lib
+    AFB_DAEMON_AAAA_CMD="afb-daemon --port=$AAAA_PORT --ldpaths=$AAAA_HOMEDEV/build --workdir=$AAAA_HOMEDEV/build \
+    --roothttp=$AAAA_HOMEDEV/htdocs --ws-server=$AAAA_SOCK $AFB_DEBUG_OPTION"
+
+    AFB_DAEMON_DEMO_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING --binding=$MPDC_BINDING \
+    --ws-client=$AAAA_SOCK --workdir=$DEMOPATH --roothttp=./htdocs  $AFB_DEBUG_OPTION"
 else
 
     if test ! -d $WS_BINDIND_PATH; then
@@ -106,12 +129,18 @@ else
         exit
     fi
 
-    AFB_DAEMON_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING \
+    AFB_DAEMON_DEMO_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING \
     --workdir=$DEMOPATH --roothttp=./htdocs --ws-client=$MPDC_SOCK $AFB_DEBUG_OPTION"
 fi
-echo $AFB_DAEMON_CMD
+
+echo ------------------------------------------------------------
+echo "$AFB_DAEMON_AAAA_CMD"
+echo ""
+echo "$AFB_DAEMON_DEMO_CMD"
 echo ------------------------------------------------------------
 
-exec $AFB_DAEMON_CMD
-#gdbserver localhost:4444 $AFB_DAEMON_CMD
+exec $AFB_DAEMON_AAAA_CMD &
+AAAA_pid=$!
+sleep 1
 
+exec $AFB_DAEMON_DEMO_CMD

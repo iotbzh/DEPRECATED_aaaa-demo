@@ -24,9 +24,7 @@ function _Mpdc_To_Multimedia_Request (request, client, control)
 
      -- in strict mode every variables should be declared
     local err=0
-    local ctlhal={}
     local response={}
-    local apihal={}
 
     if (_MPDC_CTX["multimedia"] == nil) then
        AFB_ERROR("_Mpdc_To_Multimedia no MPDC context for multimedia in _MPDC_CTX=%s", Dump_Table(_MPDC_CTX))

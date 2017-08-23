@@ -47,12 +47,14 @@
             <tr>
                 <td class="panel-speed">
                     <button class="btn-incdec" onclick="speedDec()">-</button>
-                    <input class="speed" id="speed" maxlength="9" value="90 km/h" </input>
+                    <input class="speed" id="speed" type="text" maxlength="8"
+                    min="0" max="200" step="5" value="90 km/h">
                     <button class="btn-incdec" onclick="speedInc()">+</button>
                 </td>
                 <td class="panel-sound">
                     <button class="btn-incdec" onclick="volumeDec()">-</button>
-                    <input class="sound" id="volume" maxlength="3" value="20" </input>
+                    <input class="sound" id="volume" type="text" maxlength="3"
+                    min="0" max="100" step="5" on>
                     <button class="btn-incdec" onclick="volumeInc()">+</button>
                 </td>
                 <td class="panel-music-playlist">

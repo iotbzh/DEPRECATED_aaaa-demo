@@ -86,13 +86,24 @@ input.sound,
 select.playlist,
 select.zones,
 button.btn-incdec {
-    width: 6em;
-    text-align: center;
     font-size: large;
 }
 
+input.speed,
+input.sound {
+    width: 5pc;
+}
+
+/* Always should input up/down arrows */
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
 button.btn-incdec {
-    width: 2em;
+    width: 1em;
+    padding: 0;
 }
 
 select.playlist,

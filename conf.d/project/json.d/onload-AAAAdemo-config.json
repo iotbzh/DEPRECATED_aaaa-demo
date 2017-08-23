@@ -6,67 +6,78 @@
         "version": "1.0"
     },
     "onload": [{
-            "label": "onload-default",
-            "info": "onload initialisation config",
-            "require": ["mpdc"],
-            "actions":
+        "label": "onload-default",
+        "info": "onload initialization config",
+        "require": ["mpdc"],
+        "actions": [{
+                "label": "init-AAAAdemo-logic",
+                "info": "WARNING: 3 MPDaemon should wait on corresponding port",
+                "lua": "_Init_AAAAdemo_App",
+                "args": {
+                    "mpdc_hostname": "localhost",
+                    "mpdc_multimedia": 6601,
+                    "mpdc_navigation": 6602,
+                    "mpdc_emergency": 6603
+                }
+            },
+            {
+                "label": "init-Hal",
+                "info": "initialize Hardware Abstraction Layer",
+                "lua": "_Init_Hal",
+                "args": [{
+                        "zone": "front",
+                        "slave": "hw:0",
+                        "volume": "Master Playback Volume",
+                        "numid": 17
+                    },
                     {
-                        "label": "init-AAAAdemo-logic",
-                        "info" : "WARNING: 3 MPDaemon should wait on corresponding port",
-                        "lua": "_Init_AAAAdemo_App",
-                        "args": {
-                            "mpdc_hostname":"localhost",
-                            "mpdc_multimedia":6601,
-                            "mpdc_navigation":6602,
-                            "mpdc_emergency":6603
-                         }
+                        "zone": "back",
+                        "slave": "hw:1",
+                        "volume": "Master Playback Volume",
+                        "numid": 17
                     }
-        }],
-    "controls":
-            [
-                {
-                    "label": "subscribe",
-                    "info" : "Subscribe to Application Controller Events",
-                    "permissions" : "urn:AGL:permission:audio:public:monitor",
-                    "actions": {
-                        "label": "subscribe-controller-events",
-                        "lua": "_Subscribe_Client_To_Events"
-                    }
-                },{
-                    "label": "multimedia",
-                    "info" : "Provide Interface with Music Media Player",
-                    "permissions" : "urn:AGL:permission:audio:public:music",
-                    "actions": {
-                        "label": "multimedia-action",
-                        "lua": "_Mpdc_To_Multimedia"
-                    }
-                }
-            ],
-    "events":
-            [
-                {
-                    "label": "audio-action-pause",
-                    "actions": [{
-                        "label": "mpdc-request-pause",
-                        "api": "mpdc",
-                        "verb":"pause"
-                    },{
-                        "label": "html-notify-pause",
-                        "lua": "_Audio_Notify",
-                        "args":"{multimedia:pause}"
-                    }]
-                },{
-                    "label": "audio-action-resume",
-                    "actions": [{
-                        "label": "mpdc-request-resume",
-                        "api": "mpdc",
-                        "verb":"resume"
-                    },{
-                        "label": "html-notify-resume",
-                        "lua": "_Audio_Notify",
-                        "args":"{multimedia:resume}"
-                    }]
-                }
-            ]
+                ]
+            }
+        ]
+    }],
+    "controls": [{
+        "label": "subscribe",
+        "info": "Subscribe to Application Controller Events",
+        "permissions": "urn:AGL:permission:audio:public:monitor",
+        "actions": {
+            "label": "subscribe-controller-events",
+            "lua": "_Subscribe_Client_To_Events"
+        }
+    }, {
+        "label": "multimedia",
+        "info": "Provide Interface with Music Media Player",
+        "permissions": "urn:AGL:permission:audio:public:music",
+        "actions": {
+            "label": "multimedia-action",
+            "lua": "_Mpdc_To_Multimedia"
+        }
+    }],
+    "events": [{
+        "label": "audio-action-pause",
+        "actions": [{
+            "label": "mpdc-request-pause",
+            "api": "mpdc",
+            "verb": "pause"
+        }, {
+            "label": "html-notify-pause",
+            "lua": "_Audio_Notify",
+            "args": "{multimedia:pause}"
+        }]
+    }, {
+        "label": "audio-action-resume",
+        "actions": [{
+            "label": "mpdc-request-resume",
+            "api": "mpdc",
+            "verb": "resume"
+        }, {
+            "label": "html-notify-resume",
+            "lua": "_Audio_Notify",
+            "args": "{multimedia:resume}"
+        }]
+    }]
 }
-

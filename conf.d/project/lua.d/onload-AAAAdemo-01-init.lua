@@ -117,14 +117,19 @@ function _Subscribe (request, args)
     end
     version = version.response
 
+    -- load and get current multimedia playlist
     local qPlaylist = {
         ["session"]=_MPDC_CTX["multimedia"],
-        ["current"]= true
+        -- FIXME : load seems work but cannot play songs after that !
+        --["clear"]=true,
+        --["name"]="default"
+        ["current"]=true
     }
     local err, playlist_multi = AFB:servsync("mpdc", "playlist", qPlaylist)
-    --printf ("--InLua-- playlist = %s", Dump_Table(playlist_multi))
     if (not err) then
         playlist_multi = playlist_multi["response"]
+    else
+        printf("_Subscribe: fail to load default multimedia playlist")
     end
 
     local qOutput = {
@@ -144,7 +149,9 @@ function _Subscribe (request, args)
     -- Retrieve initial state of MPDC / Navigation
     local queryNav = {
         ["session"]=_MPDC_CTX["navigation"],
-        ["current"]= true
+        --["clear"]=true,
+        --["name"]="default"
+        ["current"]=true
     }
     local err, playlist_nav = AFB:servsync("mpdc", "playlist", queryNav)
     if (not err) then
@@ -154,7 +161,9 @@ function _Subscribe (request, args)
     -- Retrieve initial state of MPDC / Navigation
     local queryEmer = {
         ["session"]=_MPDC_CTX["emergency"],
-        ["current"]= true
+        --["clear"]=true,
+        --["name"]="default"
+        ["current"]=true
     }
     local err, playlist_emer = AFB:servsync("mpdc", "playlist", queryEmer)
     if (not err) then
@@ -179,10 +188,14 @@ function _Subscribe (request, args)
     AFB:success(request, response)
 
     -- notify any clients
+    local info = args["info"]
+    if info == nil then
+        info = "Welcome !"
+    end
     local evt = {
         ["label"]="newClient",
         ["value"]=args["label"],
-        ["info"]=args["info"]
+        ["info"]=info
     }
     AFB:evtpush (_EventHandle, evt)
 

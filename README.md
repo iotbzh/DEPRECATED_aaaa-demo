@@ -49,5 +49,12 @@ mpd -v --no-daemon ./conf.d/project/mpd.d/navigation-mpd.conf &
 mpd -v --no-daemon ./conf.d/project/mpd.d/multimedia-mpd.conf &
 mpd -v --no-daemon ./conf.d/project/mpd.d/emergency-mpd.conf &
 
+cd afb-aaaa
+mkdir build && cd build
+cmake ..
+make
+afb-daemon --port=1234 --ldpaths=. --workdir=. --roothttp=../htdocs --tracereq=common --token= --verbose --ws-server=unix:/var/tmp/afb-ws/alsacore
+
+
 ./start-demo-daemon.sh
 ```

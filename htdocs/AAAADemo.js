@@ -73,54 +73,33 @@ var log = {
 //***********************
 // Generic function to call binder
 //************************
-function callbinder(api, verb, query, cbOK, cbErr) {
-    log.command(api, verb, query)
+function callbinder(api, verb, query) {
+    log.command(api, verb, query);
 
-    // FIXME SEB A SUP
-    // Update UI according to target action
-    switch (query.target) {
-        case "phone":
-            btnPhoneAnimate(5);
-            break;
-
-        case "navigation":
-            /* just for test
-            btnShake("navigation");
-            btnShake("phone-call");
-            */
-            break;
-
-    }
-
-    var ccbOK = cbOK;
-    var replyok = function (obj) {
-        log.reply(obj);
-        if (ccbOK)
-            ccbOK(obj);
-    }
-
-    var ccbErr = cbErr;
-    var replyerr = function (obj) {
-        log.error(obj);
-        if (ccbErr)
-            ccbErr();
-    }
-
-    ws.call(api + "/" + verb, query).then(replyok, replyerr);
+    // ws.call return a Promise
+    return ws.call(api + "/" + verb, query)
+        .then(function (res) {
+            log.reply(res);
+            return res;
+        })
+        .catch(function (err) {
+            log.error(err);
+            throw err;
+        });
 }
 
 function callRequest(target, args, cbOK, cbErr) {
     return callbinder('control', 'request', {
         target: target,
         args: args
-    }, cbOK, cbErr);
+    });
 }
 
-function callDispatch(target, args, cbOK, cbErr) {
+function callDispatch(target, args) {
     return callbinder('control', 'dispatch', {
         target: target,
         args: args
-    }, cbOK, cbErr);
+    });
 }
 
 //***********************
@@ -145,7 +124,7 @@ function btnMusicStartStop() {
         action: 'control',
         toggle: selElem.position
     };
-    callDispatch('multimedia', query, function (res) {
+    callDispatch('multimedia', query).then(function (res) {
         IconMusicToggle();
     });
 }
@@ -194,6 +173,7 @@ function btnShake(btnId) {
 //***********************
 // Speed management
 //***********************
+
 var SPEED_INCREMENT = 5;
 
 function speedInc() {
@@ -207,13 +187,48 @@ function speedDec() {
 function speedUpdateInput(val) {
     var elem = document.getElementById("speed");
     var speed = parseInt(elem.value.split(' ')[0]);
+
+    if ((speed == 0 && val < 0) ||
+        (speed == 200 && val > 0)) {
+        return;
+    }
+
+    if (speed < 90) {
+        volume = 20;
+    } else if (speed < 110) {
+        volume = 50;
+    } else {
+        volume = 90;
+    }
+
     elem.value = (speed + val).toString() + ' km/h';
+
+    var zone = getSelectedZone();
+
+    callRequest('_Hal_SetVolume', {
+        volume: volume,
+        zone: zone.name
+    });
 }
 
 //***********************
 // Sound volume management
 //***********************
-var VOLUME_INCREMENT = 1;
+var VOLUME_INCREMENT = 5;
+
+function initVolume() {
+    var elVolume = document.getElementById("volume");
+    var zone = getSelectedZone();
+    return callRequest('_Hal_GetVolume', {
+            zone: zone.name
+        })
+        .then(function (res) {
+            elVolume.value = res.response.val - (res.response.val % 10);
+        })
+        .catch(function (err) {
+            elVolume.value = 50;
+        });
+}
 
 function volumeInc() {
     volumeUpdateInput(VOLUME_INCREMENT);
@@ -224,13 +239,21 @@ function volumeDec() {
 }
 
 function volumeUpdateInput(val) {
-    var elem = document.getElementById("volume");
-    var volume = parseInt(elem.value.split(' ')[0]);
+    var elVolume = document.getElementById("volume");
+    var volume = parseInt(elVolume.value.split(' ')[0]);
     if ((volume == 0 && val < 0) ||
         (volume == 100 && val > 0)) {
         return;
     }
-    elem.value = (volume + val).toString();
+    volume += val;
+    elVolume.value = volume.toString();
+
+    var zone = getSelectedZone();
+
+    callRequest('_Hal_SetVolume', {
+        volume: volume,
+        zone: zone.name
+    });
 }
 
 //***********************
@@ -260,6 +283,11 @@ function updatePlaylist(selectID, list) {
     }
 }
 
+function getSelectedZone() {
+    var elZone = document.getElementById("musicZonesSelect");
+    return JSON.parse(elZone.value);
+}
+
 function updateZones(output) {
     var zoneSelect = document.getElementById("musicZonesSelect");
     var el;
@@ -269,7 +297,7 @@ function updateZones(output) {
     option.text = "all";
     option.selected = "selected";
     option.value = JSON.stringify({
-        "all": true,
+        "name": "all",
         "enable": true
     })
     zoneSelect.add(option);
@@ -304,28 +332,40 @@ function init(api, verb, query) {
         }, 2000);
 
         // Event subscription + retrieve initial state
-        callbinder(api, verb, query, function (res) {
+        callbinder(api, verb, query)
+            .then(function (res) {
 
-            // Update playlists selection
-            [
-                {name: "multimedia", select: "musicSelect"},
-                {name: "navigation", select: "navSelect"},
-                {name: "emergency", select: "emergencySelect"},
-            ].forEach(function (el) {
-                // sanity check
-                if (!res.response || !("multimedia" in res.response)) {
-                    console.error("Invalid response, missing " + el.name + ": ", res.response);
-                    return;
+                // Update playlists selection
+                [{
+                        name: "multimedia",
+                        select: "musicSelect"
+                    },
+                    {
+                        name: "navigation",
+                        select: "navSelect"
+                    },
+                    {
+                        name: "emergency",
+                        select: "emergencySelect"
+                    },
+                ].forEach(function (el) {
+                    // sanity check
+                    if (!res.response || !("multimedia" in res.response)) {
+                        console.error("Invalid response, missing " + el.name + ": ", res.response);
+                        return;
+                    }
+                    updatePlaylist(el.select, res.response[el.name].playlist);
+                });
+
+                if (res.response.multimedia.output) {
+                    updateZones(res.response.multimedia.output);
+                } else {
+                    console.error("Invalid response, missing output\n", res.response);
                 }
-                updatePlaylist(el.select, res.response[el.name].playlist);
-            });
 
-            if (res.response.multimedia.output) {
-                updateZones(res.response.multimedia.output);
-            } else {
-                console.error("Invalid response, missing output\n", res.response);
-            }
-        });
+                // Set initial volume
+                return initVolume();
+            });
 
         ws.onevent("*", function gotevent(obj) {
             log.event(obj);
@@ -340,7 +380,6 @@ function init(api, verb, query) {
         btnConn.innerHTML = "Connection Closed";
         btnConn.style.background = "red";
 
-        return;
         // Grey out page and disable dashboard
         page.style.background = "rgba(0,0,0,.5)";
         dashboard.style.opacity = "0.2";
