@@ -24,17 +24,18 @@
                 "label": "init-Hal",
                 "info": "initialize Hardware Abstraction Layer",
                 "lua": "_Init_Hal",
+                "info": "slave should match your audio config (check with aplay -l)",
                 "args": [{
                         "zone": "front",
-                        "slave": "hw:0",
+                        "slave": "hw:v1340",
                         "volume": "Master Playback Volume",
-                        "numid": 17
+                        "numid": 4
                     },
                     {
                         "zone": "back",
-                        "slave": "hw:1",
+                        "slave": "hw:v1340_1",
                         "volume": "Master Playback Volume",
-                        "numid": 17
+                        "numid": 4
                     }
                 ]
             }
@@ -58,26 +59,13 @@
         }
     }],
     "events": [{
-        "label": "audio-action-pause",
-        "actions": [{
-            "label": "mpdc-request-pause",
-            "api": "mpdc",
-            "verb": "pause"
-        }, {
-            "label": "html-notify-pause",
-            "lua": "_Audio_Notify",
-            "args": "{multimedia:pause}"
-        }]
-    }, {
-        "label": "audio-action-resume",
-        "actions": [{
-            "label": "mpdc-request-resume",
-            "api": "mpdc",
-            "verb": "resume"
-        }, {
-            "label": "html-notify-resume",
-            "lua": "_Audio_Notify",
-            "args": "{multimedia:resume}"
-        }]
+        "label": "mpdc/multimedia",
+        "actions": {
+            "label": "mpdc-multimedia-event",
+            "lua": "_Mpdc_Get_Event",
+            "args": {
+                "mpd":"navigation"
+            }
+        }
     }]
 }

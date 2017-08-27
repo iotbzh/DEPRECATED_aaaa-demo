@@ -56,3 +56,17 @@ function _Mpdc_To_Multimedia (source, args, query)
 
     return 0 -- control accepted
 end
+
+-- merge information from control and from event and push to HTML5 UI
+function _Mpdc_Get_Event (source, control, event)
+    printf ("--InLua-- _Mpdc_Get_Event arg=%s query=%s", Dump_Table(args), Dump_Table(query))
+
+    -- simply send back every we get to UI
+    local data = {
+      ["control"]=control,
+      ["event"]=event,
+    }
+
+    AFB:evtpush (_EventHandle, data)
+end
+

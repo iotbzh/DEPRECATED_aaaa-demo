@@ -177,6 +177,18 @@ function btnMusicStartStop() {
     });
 }
 
+function btnMusicStartPlay() {
+    var musicSelect = document.getElementById("musicSelect");
+    var selElem = JSON.parse(musicSelect.value);
+    var query = {
+        action: 'control',
+        play: selElem.position
+    };
+    callDispatch('multimedia', query).then(function (res) {
+        IconMusicToggle();
+    });
+}
+
 //*******
 // Emergency
 //*******

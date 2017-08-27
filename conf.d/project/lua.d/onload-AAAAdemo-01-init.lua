@@ -30,6 +30,25 @@ _MPDC_CTX={}
 -- Create event on Lua script load
 _EventHandle={}
 
+_HAL_CTX={}
+
+-- Init HAL
+function _Init_Hal (source, args)
+    printf ("--InLua-- _Init_Hal args=%s", Dump_Table(args))
+
+    -- Create HAL contexts by zone and add "all" zone
+    _HAL_CTX={}
+    _HAL_CTX["all"]={}
+    local idx=0
+    for k, v in pairs(args) do
+        _HAL_CTX[v["zone"]] = {[0] = v}
+        _HAL_CTX["all"][idx] = v
+        idx = idx + 1
+    end
+
+    return 0 -- happy end
+end
+
 function _Mpdc_Async_CB (error, result, context)
     if (error) then
       AFB_ERROR ("--InLua-- _Mpdc_Async_CB result=%s context=%s", Dump_Table(result), Dump_Table(context))
@@ -117,21 +136,6 @@ function _Subscribe (request, args)
     end
     version = version.response
 
-    -- load and get current multimedia playlist
-    local qPlaylist = {
-        ["session"]=_MPDC_CTX["multimedia"],
-        -- FIXME : load seems work but cannot play songs after that !
-        --["clear"]=true,
-        --["name"]="default"
-        ["current"]=true
-    }
-    local err, playlist_multi = AFB:servsync("mpdc", "playlist", qPlaylist)
-    if (not err) then
-        playlist_multi = playlist_multi["response"]
-    else
-        printf("_Subscribe: fail to load default multimedia playlist")
-    end
-
     local qOutput = {
         ["session"]=_MPDC_CTX["multimedia"],
         ["list"]=true,
@@ -146,12 +150,22 @@ function _Subscribe (request, args)
         mpcOutput = mpcOutput["response"]
     end
 
+    -- load and get current multimedia playlist
+    local qPlaylist = {
+        ["session"]=_MPDC_CTX["multimedia"],
+        ["current"]=true,
+    }
+    local err, playlist_multi = AFB:servsync("mpdc", "playlist", qPlaylist)
+    if (not err) then
+        playlist_multi = playlist_multi["response"]
+    else
+        printf("_Subscribe: fail to load default multimedia playlist")
+    end
+
     -- Retrieve initial state of MPDC / Navigation
     local queryNav = {
         ["session"]=_MPDC_CTX["navigation"],
-        --["clear"]=true,
-        --["name"]="default"
-        ["current"]=true
+        ["current"]=true,
     }
     local err, playlist_nav = AFB:servsync("mpdc", "playlist", queryNav)
     if (not err) then
@@ -161,9 +175,7 @@ function _Subscribe (request, args)
     -- Retrieve initial state of MPDC / Navigation
     local queryEmer = {
         ["session"]=_MPDC_CTX["emergency"],
-        --["clear"]=true,
-        --["name"]="default"
-        ["current"]=true
+        ["current"]=true,
     }
     local err, playlist_emer = AFB:servsync("mpdc", "playlist", queryEmer)
     if (not err) then

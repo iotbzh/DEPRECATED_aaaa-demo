@@ -41,7 +41,7 @@ function _Hal_SetVolume (request, args, control)
             }
         }
         printf("--InLua-- _Hal_SetVolume query %s", Dump_Table(query))
-        err, response= AFB:servsync ("alsacore", "setctl", query)
+        err, response= AFB:servsync ("alsacore", "ctlset", query)
         if (err) then
             AFB:fail(request, "--LUA:_Hal_SetVolume refuse response=%s", response)
             return 1 -- request refused
@@ -76,11 +76,10 @@ function _Hal_GetVolume (request, args, control)
             ["devid"]=zn["slave"],
             ["ctl"]= {
                 ["id"] = zn["numid"],
-                ["val"] = ""
             }
         }
         printf("--InLua-- _Hal_GetVolume query %s", Dump_Table(query))
-        err, res= AFB:servsync ("alsacore", "getctl", query)
+        err, res= AFB:servsync ("alsacore", "ctlget", query)
         if (err) then
             AFB:fail(request, "--LUA:_Hal_GetVolume refuse response=%s", res)
             return 1 -- request refused

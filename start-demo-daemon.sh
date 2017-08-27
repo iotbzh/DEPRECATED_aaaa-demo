@@ -21,12 +21,12 @@
 #MPD_PORT=6601 mpc playlist
 
 # Load default playlists
-# MPD_PORT=6601 mpc clear
-# MPD_PORT=6601 mpc load default
-# MPD_PORT=6602 mpc clear
-# MPD_PORT=6602 mpc load default
-# MPD_PORT=6603 mpc clear
-# MPD_PORT=6603 mpc load default
+MPD_PORT=6601 mpc clear
+MPD_PORT=6601 mpc load default
+MPD_PORT=6602 mpc clear
+MPD_PORT=6602 mpc load default
+MPD_PORT=6603 mpc clear
+MPD_PORT=6603 mpc load default
 
 
 # BUG CONTROL_xxx_PATH should be absolute
@@ -39,10 +39,11 @@ DEMOPATH=$PWD/`dirname $0`
 # Service Unix Websocket Path
   WS_BINDIND_PATH=/var/tmp/afb-ws
   mkdir -p $WS_BINDIND_PATH
-  MPDC_SOCK=unix:$WS_BINDIND_PATH/mpdc
+  MPDC_SOCK="--ws-client=unix:$WS_BINDIND_PATH/mpdc"
 
 # AAAA HAL binder
-  AAAA_SOCK=unix:/var/tmp/afb-ws/alsacore
+  #AAAA_SOCK="--ws-client=unix:/var/tmp/afb-ws/aaaa"
+  #ALSA_SOCK="--ws-client=unix:/var/tmp/afb-ws/alsacore"
 
 # Basic config test
   if test ! -S $WS_BINDIND_PATH/control; then
@@ -67,10 +68,10 @@ DEMOPATH=$PWD/`dirname $0`
   if [ $USERNAME = fulup ] ; then
     echo "** Fulup Development Config Selected"
     RUN_FROM_DEV_TREE=1
-    RUN_IN_GROUP=1
+    RUN_IN_GROUP=0
     RUN_AAAA_BG=0
 
-    # AFB_DEBUG_OPTION="--tracereq=common --token= --verbose"
+    AFB_DEBUG_OPTION="--tracereq=common --token= --verbose"
 
     CTL_HOMEDEV=$HOME/Workspace/AGL-AppFW/afb-controller
     MPDC_HOMEDEV=$HOME/Workspace/AGL-AppFW/afb-mpdc
@@ -135,11 +136,12 @@ fi
 
 if [ $RUN_IN_GROUP -eq 1 ] ; then
     AFB_DAEMON_DEMO_CMD="afb-daemon --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING --binding=$MPDC_BINDING \
-    --workdir=$DEMOPATH --roothttp=./htdocs --ws-client=$AAAA_SOCK  $AFB_DEBUG_OPTION "
+    --workdir=$DEMOPATH --roothttp=./htdocs $AAAA_SOCK  $AFB_DEBUG_OPTION "
 else
 
-    AFB_DAEMON_DEMO_CMD="afb-daemon $AFB_MONITORING --port=$DEMO_PORT  --ldpaths=/dev/null --binding=$CTL_BINDING \
-    --workdir=$DEMOPATH --roothttp=./htdocs --ws-client=$MPDC_SOCK $AFB_DEBUG_OPTION"
+    AFB_DAEMON_DEMO_CMD="afb-daemon  --port=$DEMO_PORT  --ldpaths=/dev/null --workdir=$DEMOPATH --roothttp=./htdocs \
+    --binding=$CTL_BINDING $AFB_DEBUG_OPTION $AFB_MONITORING \
+    $ALSA_SOCK $MPDC_SOCK "
 fi
 
 echo ------------------------------------------------------------
