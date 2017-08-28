@@ -1,7 +1,5 @@
 # AGL Advance Audio Agent Demo
 
-![aaaa-demo-screenshot](aaaa-demo-screenshot.png)
-
 ## Dependencies
 
  * From AGL
