@@ -16,8 +16,6 @@
 #MPD_PORT=6601 mpc clear
 #MPD_PORT=6601 mpc findadd filename beethoven_fur_elise.mp3
 #MPD_PORT=6601 mpc findadd filename trio-divi-alkazabach.mp3
-#MPD_PORT=6601 mpc findadd filename Fire.mp3
-#MPD_PORT=6601 mpc findadd filename LAziza.mp3
 #MPD_PORT=6601 mpc playlist
 
 # Load default playlists
@@ -65,7 +63,7 @@ DEMOPATH=$PWD/`dirname $0`
   export AFB_BINDER_NAME=AAAAdemo
 
 # Fulup OpenSuse Home Config
-  if [ $USERNAME = fulup ] ; then
+  if [ "$USERNAME" = "fulup" ] ; then
     echo "** Fulup Development Config Selected"
     RUN_FROM_DEV_TREE=1
     RUN_IN_GROUP=0
@@ -79,12 +77,12 @@ DEMOPATH=$PWD/`dirname $0`
 
 
 # Seb's Ubuntu Config
-  if [ $HOSTNAME = seb-laptop ]; then
+  if [ "$HOSTNAME" = "seb-laptop" ]; then
     RUN_FROM_DEV_TREE=1
     RUN_AAAA_BG=1
     RUN_IN_GROUP=1
 
-    AFB_DEBUG_OPTION="--tracereq=common --token= --verbose"
+    AFB_DEBUG_OPTION="--tracereq=common --token= --verbose --monitoring"
 
     CTL_HOMEDEV=$HOME/Work/git/afb-controller
     MPDC_HOMEDEV=$HOME/Work/git/afb-mpdc

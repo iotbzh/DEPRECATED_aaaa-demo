@@ -103,6 +103,25 @@ function callDispatch(target, args) {
 }
 
 //***********************
+// Info messages
+//***********************
+
+function printMessage(msg, timeout) {
+    var infoText = document.getElementById("info-text");
+    infoText.innerHTML = msg;
+    if (timeout) {
+        setTimeout(function () {
+            clearMessage();
+        }, timeout);
+    }
+}
+
+function clearMessage(id) {
+    var infoText = document.getElementById("info-text");
+    infoText.innerHTML = "";
+}
+
+//***********************
 // Buttons bar management
 //***********************
 
@@ -117,15 +136,14 @@ var btnPhoneImages = [
 ];
 
 function btnPhone() {
-    var infoText = document.getElementById("info-text");
     var elem = document.getElementById("phone-call");
     var loop = 0;
     var idx = 1;
     elem.style.backgroundImage = 'url(' + btnPhoneImages[idx] + ')';
 
-    var timeout = 10;   // 5sec
+    printMessage("Calling...")
+    var timeout = 10; // 5sec
     var id = setInterval(anim, 500);
-    infoText.innerHTML = "Calling...";
 
     function anim() {
         if (++idx >= btnPhoneImages.length) {
@@ -134,7 +152,7 @@ function btnPhone() {
         elem.style.backgroundImage = 'url(' + btnPhoneImages[idx] + ')';
         if (loop++ > timeout) {
             elem.style.backgroundImage = 'url(' + btnPhoneImages[0] + ')';
-            infoText.innerHTML = "";
+            clearMessage();
             clearInterval(id);
         }
     }
@@ -150,43 +168,83 @@ function btnNavigation() {
         toggle: selElem.position
     };
     callRequest('_Mpdc_To_Navigation_Request', query).then(function (res) {
-        btnShake("navigation");
+        console.log("_Mpdc_To_Navigation_Request result=", res);
     });
+}
+
+function btnNavigationStartStop(action) {
+    var navSelect = document.getElementById("navSelect");
+    var selElem = JSON.parse(navSelect.value);
+    var query = {
+        action: 'control'
+    };
+    if (action == "play") {
+        query.play = selElem.position;
+    } else if (action == "pause" || action == "stop") {
+        query.pause = selElem.position;
+    } else {
+        query.toggle = selElem.position;
+    }
+
+    callRequest('_Mpdc_To_Navigation_Request', query).then(function (res) {
+        console.log("_Mpdc_To_Navigation_Request result=", res);
+    });
+}
+
+function processNavigationEvent(evt) {
+    name = (evt && evt.song && evt.song.uri) ? evt.song.uri : "-unknown-";
+    if (evt.state == "MPD_STATE_PLAY") {
+        btnShake("navigation");
+        printMessage("Navigation message '" + name + "' START");
+    } else if (evt.state == "MPD_STATE_STOP") {
+        printMessage("Navigation message STOPPED", 2000);
+    } else {
+        console.error("Unknown Navigation state ", evt);
+    }
 }
 
 //*******
 // Music
 //*******
-var btnMusicState = 1;
 
-function IconMusicToggle() {
+function IconMusicToggle(state) {
     var elem = document.getElementById("music");
-    elem.style.backgroundImage = (btnMusicState) ? 'url(assets/music-pause.png)' : 'url(assets/music-play.png)';
-    btnMusicState = !btnMusicState;
+    elem.style.backgroundImage = (state=="play") ? 'url(assets/music-pause.png)' : 'url(assets/music-play.png)';
 }
 
-function btnMusicStartStop() {
+function btnMusicStartStop(action) {
     var musicSelect = document.getElementById("musicSelect");
     var selElem = JSON.parse(musicSelect.value);
     var query = {
-        action: 'control',
-        toggle: selElem.position
+        action: 'control'
     };
+    if (action == "play") {
+        query.play = selElem.position;
+    } else if (action == "pause" || action == "stop") {
+        query.pause = selElem.position;
+    } else {
+        query.toggle = selElem.position;
+    }
+
     callDispatch('multimedia', query).then(function (res) {
-        IconMusicToggle();
+        console.log("multimedia result=", res);
     });
 }
 
-function btnMusicStartPlay() {
-    var musicSelect = document.getElementById("musicSelect");
-    var selElem = JSON.parse(musicSelect.value);
-    var query = {
-        action: 'control',
-        play: selElem.position
-    };
-    callDispatch('multimedia', query).then(function (res) {
-        IconMusicToggle();
-    });
+function processMultimediaEvent(evt) {
+    name = (evt && evt.song && evt.song.uri) ? evt.song.uri : "-unknown-";
+    if (evt.state == "MPD_STATE_PLAY") {
+        IconMusicToggle("play");
+        printMessage("Start playing music '" + name + "'", 5000);
+    } else if (evt.state == "MPD_STATE_PAUSE") {
+        IconMusicToggle("pause");
+        printMessage("Music PAUSED", 3000);
+    } else if (evt.state == "MPD_STATE_STOP") {
+        IconMusicToggle("stop");
+        printMessage("Music STOPPED", 3000);
+    } else {
+        console.error("Unknown Multimedia state ", evt);
+    }
 }
 
 //*******
@@ -204,6 +262,28 @@ function btnEmergency() {
     });
 }
 
+function btnEmergencyStartStop(action) {
+    var emergSelect = document.getElementById("emergencySelect");
+    var selElem = JSON.parse(emergSelect.value);
+    var query = {
+        action: 'control'
+    };
+    if (action == "play") {
+        query.play = selElem.position;
+    } else if (action == "pause" || action == "stop") {
+        query.pause = selElem.position;
+    } else {
+        query.toggle = selElem.position;
+    }
+
+    callRequest('_Mpdc_To_Emergency_Request', query).then(function (res) {
+        btnShake("emergency");
+    });
+}
+
+function processEmergencyEvent(evt) {
+    console.log("SEB EMER evt ", evt);
+}
 
 function btnShake(btnId) {
     var elem = document.getElementById(btnId);
@@ -361,6 +441,34 @@ function updateZones(output) {
 }
 
 //***********************
+// Events dispatcher
+//***********************
+function gotevent(obj) {
+    log.event(obj);
+
+    if (!('data' in obj) || !('control' in obj.data)) {
+        return;
+    }
+
+    if ('mpd' in obj.data.control) {
+        switch (obj.data.control.mpd) {
+            case "navigation":
+                processNavigationEvent(obj.data.event);
+                break;
+            case "multimedia":
+                processMultimediaEvent(obj.data.event);
+                break;
+            case "emergency":
+                processEmergencyEvent(obj.data.event);
+                break;
+            default:
+                console.error("Unknown MPD event ", obj);
+                break;
+        }
+    }
+}
+
+//***********************
 // Initialization
 //***********************
 function init(api, verb, query) {
@@ -370,11 +478,6 @@ function init(api, verb, query) {
     var dashboard = document.getElementsByClassName("dashboard")[0];
 
     function onopen() {
-        // FIXME SEB A SUP
-        setTimeout(function () {
-            btnShake("phone-call");
-        }, 2000);
-
         // Event subscription + retrieve initial state
         callbinder(api, verb, query)
             .then(function (res) {
@@ -411,9 +514,8 @@ function init(api, verb, query) {
                 return initVolume();
             });
 
-        ws.onevent("*", function gotevent(obj) {
-            log.event(obj);
-        });
+        // Register callback on events
+        ws.onevent("*", gotevent);
 
         btnConn.innerHTML = "Binder Connection Active";
         btnConn.style.background = "lightgreen";

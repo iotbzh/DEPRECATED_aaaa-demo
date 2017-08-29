@@ -63,7 +63,7 @@
                 </td>
                 <td class="panel-music-playlist">
                     <select class="playlist" id="musicSelect"
-                    onclick="btnMusicStartPlay()"></select>
+                    onclick="btnMusicStartStop('play')"></select>
                 </td>
                 <td class="panel-music-zones">
                     <select class="zones" id="musicZonesSelect"
@@ -77,10 +77,12 @@
             <th>Emergency</th>
             <tr>
                 <td class="panel-nav-playlist">
-                    <select class="playlist" id="navSelect"></select>
+                    <select class="playlist" id="navSelect"
+                    onclick="btnNavigationStartStop('play')"></select>
                 </td>
                 <td class="panel-emergency-playlist">
-                    <select class="playlist" id="emergencySelect"></select>
+                    <select class="playlist" id="emergencySelect"
+                    onclick="btnEmergencyStartStop('play')"></select>
                 </td>
             </tr>
         </table>

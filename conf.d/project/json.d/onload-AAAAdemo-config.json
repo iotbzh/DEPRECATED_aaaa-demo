@@ -64,6 +64,27 @@
             "label": "mpdc-multimedia-event",
             "lua": "_Mpdc_Get_Event",
             "args": {
+                "mpd":"multimedia"
+            }
+        }
+    },
+    {
+        "label": "mpdc/emergency",
+        "actions": {
+            "label": "mpdc-emergency-event",
+            "lua": "_Mpdc_Get_Event",
+            "args": {
+                "mpd":"emergency"
+            }
+
+        }
+    },
+    {
+        "label": "mpdc/navigation",
+        "actions": {
+            "label": "mpdc-navigation-event",
+            "lua": "_Mpdc_Get_Event",
+            "args": {
                 "mpd":"navigation"
             }
         }
