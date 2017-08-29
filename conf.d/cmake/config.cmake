@@ -193,7 +193,7 @@ set(WIDGET_ENTRY_POINT htdocs/index.html)
 # Optional schema validator about now only XML, LUA and JSON
 # are supported
 #------------------------------------------------------------
-set(LUA_CHECKER "luac -o /dev/null" CACHE STRING "LUA compiler")
+#set(LUA_CHECKER "luac" "-p" CACHE STRING "LUA compiler")
 #set(XML_CHECKER "xmllint" CACHE STRING "XML linter")
 #set(JSON_CHECKER "json_verify" CACHE STRING "JSON linter")
 
